@@ -126,10 +126,28 @@ export const PARTNER_CATEGORIES: PartnerCategory[] = [
     seatsTaken: 3,
   },
   {
-    slug: 'arquitectura-construccion',
-    name: 'Arquitectura y construcción',
-    description: 'Proyectos, remodelaciones, dirección de obra y desarrollo inmobiliario.',
+    slug: 'arquitectos',
+    name: 'Arquitectos',
+    description: 'Proyecto arquitectónico, diseño, documentación técnica y dirección profesional.',
     seatsTaken: 2,
+  },
+  {
+    slug: 'construccion-reformas',
+    name: 'Construcción y reformas',
+    description: 'Construcción, remodelaciones, ampliaciones, dirección de obra y reformas integrales.',
+    seatsTaken: 0,
+  },
+  {
+    slug: 'eventos',
+    name: 'Eventos',
+    description: 'Organización, producción, catering, espacios y servicios profesionales para eventos.',
+    seatsTaken: 0,
+  },
+  {
+    slug: 'guarderia-cuidadores-infantiles',
+    name: 'Guardería y cuidadores infantiles',
+    description: 'Guarderías, cuidado infantil, niñeras y apoyo profesional para familias.',
+    seatsTaken: 0,
   },
   {
     slug: 'servicios-hogar',
