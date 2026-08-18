@@ -6,14 +6,14 @@ import logo from '@/assets/logo.png';
 
 export const Footer = () => {
   const { t } = useLanguage();
-  
+
   const navLinks = [
-    { path: '/', label: t.nav.home },
-    { path: '/permits', label: t.nav.permits },
-    { path: 'https://tekoha.estate', label: t.nav.housing, external: true },
-    { path: '/schools', label: t.nav.schools },
-    { path: '/neighborhoods', label: t.nav.neighborhoods },
-    { path: '/blog', label: 'Blog' },
+    { path: '/', label: 'Inicio' },
+    { path: '/vivir-en-paraguay', label: 'Vivir en Paraguay' },
+    { path: '/profesionales', label: 'Profesionales' },
+    { path: '/comunidad', label: 'Comunidad' },
+    { path: '/recursos', label: 'Recursos' },
+    { path: '/ser-partner', label: 'Ser Partner' },
   ];
 
   const socialLinks = {
@@ -24,108 +24,44 @@ export const Footer = () => {
 
   return (
     <footer className="bg-py-blue-dark text-white">
-      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 sm:gap-8 mb-6 sm:mb-8">
-          {/* Logo y Descripción */}
+      <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12">
+        <div className="mb-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <div>
-            <img src={logo} alt="Living Paraguay" className="h-24 w-auto mb-4 brightness-0 invert" />
-            <p className="text-gray-300 text-sm">
-              {t.footer.company}
-            </p>
+            <img src={logo} alt="Living Paraguay" className="mb-4 h-24 w-auto brightness-0 invert" />
+            <p className="text-sm text-gray-300">Comunidad, recursos y una red profesional para vivir, instalarse y emprender en Paraguay.</p>
           </div>
 
-          {/* Navegación */}
           <div>
-            <h4 className="font-bold text-lg mb-4">{t.nav.home}</h4>
+            <h4 className="mb-4 text-lg font-bold text-white">Explorar</h4>
             <ul className="space-y-2">
-              {navLinks.map((link) => (
-                <li key={link.path}>
-                  {link.external ? (
-                    <a
-                      href={link.path}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-300 hover:text-white transition-colors"
-                    >
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link
-                      to={link.path}
-                      className="text-gray-300 hover:text-white transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  )}
-                </li>
-              ))}
+              {navLinks.map((link) => <li key={link.path}><Link to={link.path} className="text-gray-300 transition-colors hover:text-white">{link.label}</Link></li>)}
             </ul>
           </div>
 
-          {/* Enlaces Legales */}
           <div>
-            <h4 className="font-bold text-lg mb-4">{t.footer.legal}</h4>
+            <h4 className="mb-4 text-lg font-bold text-white">Guías útiles</h4>
             <ul className="space-y-2">
-              <li>
-                <button className="text-gray-300 hover:text-white transition-colors">
-                  {t.footer.legalPrivacy}
-                </button>
-              </li>
-              <li>
-                <button className="text-gray-300 hover:text-white transition-colors">
-                  {t.footer.legalTerms}
-                </button>
-              </li>
-              <li>
-                <button className="text-gray-300 hover:text-white transition-colors">
-                  {t.footer.legalCookies}
-                </button>
-              </li>
+              <li><Link to="/permits" className="text-gray-300 transition-colors hover:text-white">Residencia y cédula</Link></li>
+              <li><Link to="/taxation" className="text-gray-300 transition-colors hover:text-white">Fiscalidad</Link></li>
+              <li><Link to="/schools" className="text-gray-300 transition-colors hover:text-white">Colegios</Link></li>
+              <li><Link to="/blog" className="text-gray-300 transition-colors hover:text-white">Blog</Link></li>
             </ul>
           </div>
 
-          {/* Redes Sociales */}
           <div>
-            <h4 className="font-bold text-lg mb-4">{t.footer.followUs}</h4>
+            <h4 className="mb-4 text-lg font-bold text-white">{t.footer.followUs}</h4>
             <div className="flex space-x-4">
-              <a
-                href={socialLinks.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
-              >
-                <Icon name="facebook" size={20} />
-              </a>
-              <a
-                href={socialLinks.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
-              >
-                <Icon name="instagram" size={20} />
-              </a>
-              <a
-                href={socialLinks.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
-              >
-                <Icon name="youtube" size={20} />
-              </a>
+              <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-primary" aria-label="Facebook"><Icon name="facebook" size={20} /></a>
+              <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-primary" aria-label="Instagram"><Icon name="instagram" size={20} /></a>
+              <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-primary" aria-label="YouTube"><Icon name="youtube" size={20} /></a>
             </div>
           </div>
 
-          {/* Newsletter */}
-          <div>
-            <NewsletterForm />
-          </div>
+          <div><NewsletterForm /></div>
         </div>
 
-        {/* Copyright */}
         <div className="border-t border-white/10 pt-8 text-center">
-          <p className="text-gray-400 text-sm">
-            {t.footer.copyright}
-          </p>
+          <p className="text-sm text-gray-400">{t.footer.copyright}</p>
         </div>
       </div>
     </footer>
