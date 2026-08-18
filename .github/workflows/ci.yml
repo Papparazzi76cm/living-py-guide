@@ -25,21 +25,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Preview safe audit fixes
-        continue-on-error: true
-        run: |
-          npm audit fix --package-lock-only
-          echo '=== SAFE AUDIT FIX DIFF ==='
-          git diff -- package.json package-lock.json
-
-      - name: Reinstall proposed dependency tree
-        run: npm ci
-
-      - name: Runtime dependency audit after safe fix
+      - name: Runtime dependency audit
         continue-on-error: true
         run: npm audit --omit=dev --audit-level=moderate
 
-      - name: Full dependency audit after safe fix
+      - name: Full dependency audit
         continue-on-error: true
         run: npm audit --audit-level=high
 
