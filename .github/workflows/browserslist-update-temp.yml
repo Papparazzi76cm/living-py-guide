@@ -23,8 +23,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Update Browserslist database
-        run: npx update-browserslist-db@latest
+      - name: Update Browserslist packages in npm lockfile
+        run: npm update caniuse-lite browserslist --package-lock-only
 
       - name: Install updated dependency tree
         run: npm ci
