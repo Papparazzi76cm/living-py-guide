@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,7 @@ const AdminDashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchSubscribers = async () => {
+  const fetchSubscribers = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('newsletter_subscribers')
@@ -59,10 +59,8 @@ const AdminDashboardPage = () => {
 
       setSubscribers(data || []);
 
-      // Calculate stats
       const now = new Date();
       const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      
       const sources: Record<string, number> = {};
       let activeCount = 0;
       let thisMonthCount = 0;
@@ -86,15 +84,15 @@ const AdminDashboardPage = () => {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
-    fetchSubscribers();
-  }, []);
+    void fetchSubscribers();
+  }, [fetchSubscribers]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    fetchSubscribers();
+    void fetchSubscribers();
   };
 
   const handleExportCSV = () => {
@@ -135,7 +133,6 @@ const AdminDashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-      {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div>
@@ -150,7 +147,6 @@ const AdminDashboardPage = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -198,7 +194,6 @@ const AdminDashboardPage = () => {
           </Card>
         </div>
 
-        {/* Subscribers Table */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
