@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,26 +9,36 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
-import LivingParaguayPage from "./pages/LivingParaguayPage";
-import ProfessionalsPage from "./pages/ProfessionalsPage";
-import CommunityPage from "./pages/CommunityPage";
-import ResourcesPage from "./pages/ResourcesPage";
-import PartnerPage from "./pages/PartnerPage";
-import PermitsPage from "./pages/PermitsPage";
-import SchoolsPage from "./pages/SchoolsPage";
-import NeighborhoodsPage from "./pages/NeighborhoodsPage";
-import TaxationPage from "./pages/TaxationPage";
-import SocialSecurityPage from "./pages/SocialSecurityPage";
-import FaqPage from "./pages/FaqPage";
-import ContactPage from "./pages/ContactPage";
-import BlogPage from "./pages/BlogPage";
-import BlogPostPage from "./pages/BlogPostPage";
-import ApostillarDocumentosPage from "./pages/blog/ApostillarDocumentosPage";
-import AdminLoginPage from "./pages/admin/AdminLoginPage";
-import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
-import NotFound from "./pages/NotFound";
+
+const LivingParaguayPage = lazy(() => import("./pages/LivingParaguayPage"));
+const ProfessionalsPage = lazy(() => import("./pages/ProfessionalsPage"));
+const CommunityPage = lazy(() => import("./pages/CommunityPage"));
+const ResourcesPage = lazy(() => import("./pages/ResourcesPage"));
+const PartnerPage = lazy(() => import("./pages/PartnerPage"));
+const PermitsPage = lazy(() => import("./pages/PermitsPage"));
+const SchoolsPage = lazy(() => import("./pages/SchoolsPage"));
+const NeighborhoodsPage = lazy(() => import("./pages/NeighborhoodsPage"));
+const TaxationPage = lazy(() => import("./pages/TaxationPage"));
+const SocialSecurityPage = lazy(() => import("./pages/SocialSecurityPage"));
+const FaqPage = lazy(() => import("./pages/FaqPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const BlogPage = lazy(() => import("./pages/BlogPage"));
+const BlogPostPage = lazy(() => import("./pages/BlogPostPage"));
+const ApostillarDocumentosPage = lazy(() => import("./pages/blog/ApostillarDocumentosPage"));
+const AdminLoginPage = lazy(() => import("./pages/admin/AdminLoginPage"));
+const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
+
+const RouteFallback = () => (
+  <div className="flex min-h-[40vh] items-center justify-center bg-background px-4 pt-24" role="status" aria-live="polite">
+    <div className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
+      <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary/25 border-t-primary" aria-hidden />
+      Cargando…
+    </div>
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -38,36 +49,38 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/vivir-en-paraguay" element={<LivingParaguayPage />} />
-                <Route path="/profesionales" element={<ProfessionalsPage />} />
-                <Route path="/comunidad" element={<CommunityPage />} />
-                <Route path="/recursos" element={<ResourcesPage />} />
-                <Route path="/ser-partner" element={<PartnerPage />} />
+              <Suspense fallback={<RouteFallback />}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/vivir-en-paraguay" element={<LivingParaguayPage />} />
+                  <Route path="/profesionales" element={<ProfessionalsPage />} />
+                  <Route path="/comunidad" element={<CommunityPage />} />
+                  <Route path="/recursos" element={<ResourcesPage />} />
+                  <Route path="/ser-partner" element={<PartnerPage />} />
 
-                <Route path="/permits" element={<PermitsPage />} />
-                <Route path="/schools" element={<SchoolsPage />} />
-                <Route path="/neighborhoods" element={<NeighborhoodsPage />} />
-                <Route path="/taxation" element={<TaxationPage />} />
-                <Route path="/social-security" element={<SocialSecurityPage />} />
-                <Route path="/faq" element={<FaqPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/blog" element={<BlogPage />} />
-                <Route path="/blog/:slug" element={<BlogPostPage />} />
-                <Route path="/blog/apostillar-documentos" element={<ApostillarDocumentosPage />} />
+                  <Route path="/permits" element={<PermitsPage />} />
+                  <Route path="/schools" element={<SchoolsPage />} />
+                  <Route path="/neighborhoods" element={<NeighborhoodsPage />} />
+                  <Route path="/taxation" element={<TaxationPage />} />
+                  <Route path="/social-security" element={<SocialSecurityPage />} />
+                  <Route path="/faq" element={<FaqPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/blog" element={<BlogPage />} />
+                  <Route path="/blog/:slug" element={<BlogPostPage />} />
+                  <Route path="/blog/apostillar-documentos" element={<ApostillarDocumentosPage />} />
 
-                <Route path="/admin/login" element={<AdminLoginPage />} />
-                <Route
-                  path="/admin/dashboard"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <AdminDashboardPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+                  <Route path="/admin/login" element={<AdminLoginPage />} />
+                  <Route
+                    path="/admin/dashboard"
+                    element={
+                      <ProtectedRoute requireAdmin>
+                        <AdminDashboardPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </BrowserRouter>
           </TooltipProvider>
         </AuthProvider>
