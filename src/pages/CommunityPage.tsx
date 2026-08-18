@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
-import { ArrowRight, CalendarDays, Coffee, Users, Video } from 'lucide-react';
+import { CalendarDays, Coffee, Users, Video } from 'lucide-react';
 import { Layout } from '../components/Layout';
+import { CommunityJoinForm } from '../components/club/CommunityJoinForm';
 import { CLUB_EVENTS } from '../data/clubData';
 
 const eventIcons = [Coffee, Users, Video, CalendarDays];
@@ -43,17 +43,15 @@ const CommunityPage = () => (
           })}
         </div>
 
-        <div id="unirme" className="mt-12 scroll-mt-28 rounded-3xl border border-primary/25 bg-card p-8 sm:p-10">
-          <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div>
-              <p className="club-eyebrow text-primary">Acceso para expatriados</p>
-              <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">Entrar a la comunidad es gratis.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">En el MVP utilizamos el formulario de contacto para gestionar las primeras altas manualmente. Después lo conectaremos a registro, CRM y automatizaciones.</p>
-            </div>
-            <Link to="/contact" className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 font-semibold text-primary-foreground transition-colors hover:bg-primary-hover">
-              Quiero unirme <ArrowRight className="h-5 w-5" />
-            </Link>
+        <div id="unirme" className="mt-14 scroll-mt-28">
+          <div className="mb-8 max-w-2xl">
+            <p className="club-eyebrow text-primary">Acceso para expatriados</p>
+            <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">Entrar a la comunidad es gratis.</h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              Cuéntanos en qué momento estás y qué necesitas. Guardaremos tu solicitud para poder invitarte a encuentros y conectarte con recursos relevantes para tu llegada o tu vida en Paraguay.
+            </p>
           </div>
+          <CommunityJoinForm />
         </div>
       </div>
     </section>
