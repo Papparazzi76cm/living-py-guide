@@ -7,23 +7,38 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 
 const contactSchema = z.object({
-  name: z.string().trim().min(1, 'El nombre es requerido').max(100, 'El nombre debe tener menos de 100 caracteres'),
-  email: z.string().trim().email('Email inválido').max(255, 'El email debe tener menos de 255 caracteres'),
-  subject: z.string().trim().min(1, 'El asunto es requerido').max(200, 'El asunto debe tener menos de 200 caracteres'),
+  name: z.string().trim().min(2, 'El nombre es requerido').max(100, 'El nombre debe tener menos de 100 caracteres'),
+  email: z.string().trim().email('Email inválido').max(254, 'El email debe tener menos de 255 caracteres').transform((value) => value.toLowerCase()),
+  subject: z.string().trim().min(2, 'El asunto es requerido').max(200, 'El asunto debe tener menos de 200 caracteres'),
   message: z.string().trim().min(10, 'El mensaje debe tener al menos 10 caracteres').max(2000, 'El mensaje debe tener menos de 2000 caracteres'),
+  consent: z.literal(true, { errorMap: () => ({ message: 'Necesitamos tu consentimiento para guardar la consulta' }) }),
 });
+
+type ContactFormData = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  consent: boolean;
+  website: string;
+};
+
+const EMPTY_FORM: ContactFormData = {
+  name: '',
+  email: '',
+  subject: '',
+  message: '',
+  consent: false,
+  website: '',
+};
 
 export const ContactSection = () => {
   const { t } = useLanguage();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  });
+  const [formData, setFormData] = useState<ContactFormData>(EMPTY_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
@@ -31,40 +46,57 @@ export const ContactSection = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    
-    try {
-      const validatedData = contactSchema.parse(formData);
-      setIsSubmitting(true);
-      
-      // Simular llamada a API
-      setTimeout(() => {
-        setIsSubmitting(false);
-        setFormData({ name: '', email: '', subject: '', message: '' });
-        toast({
-          title: t.contact.formSuccess,
-          description: t.contact.subtitle,
-        });
-      }, 1500);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0].toString()] = err.message;
-          }
-        });
-        setErrors(fieldErrors);
-        toast({
-          title: 'Error de validación',
-          description: 'Por favor, corrige los errores en el formulario',
-          variant: 'destructive',
-        });
-      }
+
+    if (formData.website) {
+      setFormData(EMPTY_FORM);
+      toast({ title: t.contact.formSuccess, description: t.contact.subtitle });
+      return;
     }
+
+    const parsed = contactSchema.safeParse(formData);
+    if (!parsed.success) {
+      const fieldErrors: Record<string, string> = {};
+      parsed.error.issues.forEach((err) => {
+        if (err.path[0]) fieldErrors[err.path[0].toString()] = err.message;
+      });
+      setErrors(fieldErrors);
+      toast({
+        title: 'Error de validación',
+        description: parsed.error.issues[0]?.message ?? 'Por favor, corrige los errores en el formulario',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    const { error } = await supabase.from('contact_inquiries').insert([{
+      name: parsed.data.name,
+      email: parsed.data.email,
+      subject: parsed.data.subject,
+      message: parsed.data.message,
+      consent_privacy: true,
+      source: 'contact_page',
+    }]);
+    setIsSubmitting(false);
+
+    if (error) {
+      toast({
+        title: 'No hemos podido enviar tu consulta',
+        description: 'Inténtalo de nuevo en unos minutos o contáctanos por WhatsApp.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setFormData(EMPTY_FORM);
+    toast({
+      title: t.contact.formSuccess,
+      description: t.contact.subtitle,
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((current) => ({ ...current, [e.target.name]: e.target.value }));
   };
 
   return (
@@ -80,7 +112,6 @@ export const ContactSection = () => {
         </AnimatedDiv>
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Información de Contacto */}
           <AnimatedDiv delay={100}>
             <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 h-full">
               <h3 className="text-2xl font-bold mb-6">{t.contact.formTitle}</h3>
@@ -94,7 +125,7 @@ export const ContactSection = () => {
                     <p className="text-muted-foreground group-hover:text-primary transition-colors">{CONTACT_INFO.email}</p>
                   </div>
                 </a>
-                
+
                 <a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} className="flex items-center gap-4 group">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center transition-colors group-hover:bg-primary">
                     <Icon name="phone" size={24} className="text-primary transition-colors group-hover:text-white" />
@@ -118,7 +149,6 @@ export const ContactSection = () => {
             </div>
           </AnimatedDiv>
 
-          {/* Formulario de Contacto */}
           <AnimatedDiv delay={200}>
             <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
               <h3 className="text-2xl font-bold mb-6">{t.contact.formTitle}</h3>
@@ -132,6 +162,7 @@ export const ContactSection = () => {
                       value={formData.name}
                       onChange={handleChange}
                       className={errors.name ? 'border-destructive' : ''}
+                      required
                     />
                     {errors.name && <p className="text-sm text-destructive mt-1">{errors.name}</p>}
                   </div>
@@ -143,6 +174,7 @@ export const ContactSection = () => {
                       value={formData.email}
                       onChange={handleChange}
                       className={errors.email ? 'border-destructive' : ''}
+                      required
                     />
                     {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
                   </div>
@@ -155,6 +187,7 @@ export const ContactSection = () => {
                     value={formData.subject}
                     onChange={handleChange}
                     className={errors.subject ? 'border-destructive' : ''}
+                    required
                   />
                   {errors.subject && <p className="text-sm text-destructive mt-1">{errors.subject}</p>}
                 </div>
@@ -166,9 +199,35 @@ export const ContactSection = () => {
                     value={formData.message}
                     onChange={handleChange}
                     className={errors.message ? 'border-destructive' : ''}
+                    required
                   />
                   {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
                 </div>
+
+                <div className="hidden" aria-hidden="true">
+                  <label htmlFor="contact-website">Website</label>
+                  <Input
+                    id="contact-website"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formData.website}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <label className="flex items-start gap-3 rounded-lg bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    required
+                    className="mt-0.5 h-4 w-4 accent-primary"
+                    checked={formData.consent}
+                    onChange={(e) => setFormData((current) => ({ ...current, consent: e.target.checked }))}
+                  />
+                  <span>Acepto que Living Paraguay trate estos datos para responder a mi consulta.</span>
+                </label>
+                {errors.consent && <p className="text-sm text-destructive">{errors.consent}</p>}
+
                 <Button type="submit" disabled={isSubmitting} className="w-full py-3">
                   {isSubmitting ? t.contact.formSubmitting : t.contact.formSubmit}
                 </Button>
