@@ -19,13 +19,24 @@ const SYSTEM_PROMPT = `Eres "Guaraní Guide", un asistente experto para expatria
 
 Si una pregunta es muy específica o requiere asesoría legal, recomienda contactar a un asesor a través del formulario del sitio web. Si no sabes una respuesta, dilo honestamente. Evita temas no relacionados con la expatriación a Paraguay.`;
 
+type IncomingMessage = {
+  role: string;
+  content: string;
+};
+
+const isIncomingMessage = (value: unknown): value is IncomingMessage => {
+  if (typeof value !== 'object' || value === null) return false;
+
+  const record = value as Record<string, unknown>;
+  return typeof record.role === 'string' && typeof record.content === 'string';
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Authenticate the request
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
@@ -58,9 +69,10 @@ serve(async (req) => {
       );
     }
 
-    const { messages } = await req.json();
-    
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    const body = await req.json() as { messages?: unknown };
+    const messages = body.messages;
+
+    if (!Array.isArray(messages) || messages.length === 0) {
       return new Response(
         JSON.stringify({ error: 'Messages array is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -78,12 +90,12 @@ serve(async (req) => {
       );
     }
 
-    // Sanitize and validate messages
     const sanitized = messages
-      .filter((msg: any) => typeof msg.role === 'string' && typeof msg.content === 'string' && ALLOWED_ROLES.includes(msg.role))
-      .map((msg: { role: string; content: string }) => ({
+      .filter(isIncomingMessage)
+      .filter((msg) => ALLOWED_ROLES.includes(msg.role))
+      .map((msg) => ({
         role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: String(msg.content).slice(0, MAX_MSG_LENGTH) }],
+        parts: [{ text: msg.content.slice(0, MAX_MSG_LENGTH) }],
       }));
 
     if (sanitized.length === 0) {
@@ -93,7 +105,6 @@ serve(async (req) => {
       );
     }
 
-    // Format messages for Gemini API
     const contents = [
       { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
       { role: 'model', parts: [{ text: 'Entendido. Estoy listo para ayudar a expatriados con información sobre Paraguay.' }] },

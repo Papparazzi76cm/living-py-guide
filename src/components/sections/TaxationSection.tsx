@@ -76,7 +76,7 @@ export const TaxationSection = () => {
 
   const handleCalculate = () => {
     // Limpiar comas o puntos para asegurar que sea un número flotante
-    const numericIncome = parseFloat(income.replace(/[\.,]/g, '')) || 0;
+    const numericIncome = parseFloat(income.replace(/[.,]/g, '')) || 0;
     if (numericIncome <= 0) {
       setTotalTaxPYG(0);
       setNetIncomePYG(0);
@@ -91,7 +91,7 @@ export const TaxationSection = () => {
 
     // Calcular total de deducciones en PYG
     const totalDeductionsPYG = deductions.reduce((sum, deduction) => {
-      const amount = parseFloat(deduction.amount.replace(/[\.,]/g, '')) || 0;
+      const amount = parseFloat(deduction.amount.replace(/[.,]/g, '')) || 0;
       return sum + (amount * selectedCurrency.rate);
     }, 0);
 
