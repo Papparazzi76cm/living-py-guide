@@ -11,6 +11,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
+const HERO_SLIDE_COUNT = 3;
+
 interface HeroSectionProps {
   onNavigate: (page: Page) => void;
 }
@@ -46,7 +48,7 @@ export const HeroSection = ({ onNavigate }: HeroSectionProps) => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDE_COUNT);
     }, 6000);
 
     return () => clearInterval(timer);
