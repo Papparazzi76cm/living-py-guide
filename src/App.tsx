@@ -8,8 +8,12 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
+import LivingParaguayPage from "./pages/LivingParaguayPage";
+import ProfessionalsPage from "./pages/ProfessionalsPage";
+import CommunityPage from "./pages/CommunityPage";
+import ResourcesPage from "./pages/ResourcesPage";
+import PartnerPage from "./pages/PartnerPage";
 import PermitsPage from "./pages/PermitsPage";
-
 import SchoolsPage from "./pages/SchoolsPage";
 import NeighborhoodsPage from "./pages/NeighborhoodsPage";
 import TaxationPage from "./pages/TaxationPage";
@@ -36,8 +40,13 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/vivir-en-paraguay" element={<LivingParaguayPage />} />
+                <Route path="/profesionales" element={<ProfessionalsPage />} />
+                <Route path="/comunidad" element={<CommunityPage />} />
+                <Route path="/recursos" element={<ResourcesPage />} />
+                <Route path="/ser-partner" element={<PartnerPage />} />
+
                 <Route path="/permits" element={<PermitsPage />} />
-                {/* Housing removed - now links to tekoha.estate */}
                 <Route path="/schools" element={<SchoolsPage />} />
                 <Route path="/neighborhoods" element={<NeighborhoodsPage />} />
                 <Route path="/taxation" element={<TaxationPage />} />
@@ -46,17 +55,17 @@ const App = () => (
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/blog/:slug" element={<BlogPostPage />} />
-                {/* Admin routes */}
+                <Route path="/blog/apostillar-documentos" element={<ApostillarDocumentosPage />} />
+
                 <Route path="/admin/login" element={<AdminLoginPage />} />
-                <Route 
-                  path="/admin/dashboard" 
+                <Route
+                  path="/admin/dashboard"
                   element={
                     <ProtectedRoute requireAdmin>
                       <AdminDashboardPage />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

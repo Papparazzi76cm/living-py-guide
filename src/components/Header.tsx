@@ -1,27 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Icon } from './Icon';
 import { LanguageSelector } from './LanguageSelector';
-import { useLanguage } from '../contexts/LanguageContext';
 import logo from '@/assets/logo.png';
 
 export const Header = () => {
   const location = useLocation();
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { t } = useLanguage();
-  
+
   const navLinks = [
-    { path: '/', label: t.nav.home },
-    { path: '/permits', label: t.nav.permits },
-    { path: 'https://tekoha.estate', label: t.nav.housing, external: true },
-    { path: '/schools', label: t.nav.schools },
-    { path: '/neighborhoods', label: t.nav.neighborhoods },
-    { path: '/taxation', label: t.nav.taxation },
-    { path: '/social-security', label: t.nav.socialSecurity },
-    { path: '/blog', label: 'Blog' },
-    { path: '/faq', label: t.nav.faq },
-    { path: '/contact', label: t.nav.contact },
+    { path: '/', label: 'Inicio' },
+    { path: '/vivir-en-paraguay', label: 'Vivir en Paraguay' },
+    { path: '/profesionales', label: 'Profesionales' },
+    { path: '/comunidad', label: 'Comunidad' },
+    { path: '/recursos', label: 'Recursos' },
+    { path: '/ser-partner', label: 'Ser Partner' },
   ];
 
   const isActivePath = (path: string) => {
@@ -29,83 +22,46 @@ export const Header = () => {
     return location.pathname.startsWith(path);
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleMobileMenuClose = () => {
-    setIsMobileMenuOpen(false);
-  };
-
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'backdrop-blur-glass shadow-md' : 'bg-transparent'
-        }`}
-      >
+      <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/70 bg-white/95 shadow-sm backdrop-blur-xl">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16 sm:h-20">
-            {/* Logo */}
-            <Link
-              to="/"
-              className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
-            >
-              <img src={logo} alt="Living Paraguay" className="h-20 sm:h-24 w-auto" />
+          <div className="flex h-16 items-center justify-between sm:h-20">
+            <Link to="/" className="flex items-center transition-opacity hover:opacity-80" aria-label="Living Paraguay - Inicio">
+              <img src={logo} alt="Living Paraguay" className="h-16 w-auto sm:h-20" />
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center space-x-4 text-sm">
-              {navLinks.map((link) =>
-                link.external ? (
-                  <a
-                    key={link.path}
-                    href={link.path}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative font-medium transition-colors text-white hover:text-primary"
-                  >
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    className={`relative font-medium transition-colors ${
-                      isActivePath(link.path)
-                        ? 'text-primary'
-                        : 'text-white hover:text-primary'
-                    }`}
-                  >
-                    {link.label}
-                    {isActivePath(link.path) && (
-                      <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary"></span>
-                    )}
-                  </Link>
-                )
-              )}
+            <nav className="hidden items-center gap-5 xl:flex">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`relative text-sm font-semibold transition-colors ${
+                    isActivePath(link.path) ? 'text-primary' : 'text-ink hover:text-primary'
+                  }`}
+                >
+                  {link.label}
+                  {isActivePath(link.path) && <span className="absolute -bottom-2 left-0 right-0 h-0.5 rounded-full bg-primary" />}
+                </Link>
+              ))}
             </nav>
 
-            {/* Language Selector & CTA - Desktop */}
-            <div className="hidden xl:flex items-center gap-3">
+            <div className="hidden items-center gap-3 xl:flex">
               <LanguageSelector />
               <Link
-                to="/contact"
-                className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary-hover transition-colors shadow-md"
+                to="/comunidad#unirme"
+                className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-hover"
               >
-                {t.nav.startProcess}
+                Entrar a la comunidad
               </Link>
             </div>
 
-            {/* Mobile Menu Button */}
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="xl:hidden p-2 text-foreground hover:text-primary transition-colors"
+              type="button"
+              onClick={() => setIsMobileMenuOpen((open) => !open)}
+              className="rounded-lg p-2 text-ink transition-colors hover:bg-muted hover:text-primary xl:hidden"
+              aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-expanded={isMobileMenuOpen}
             >
               <Icon name={isMobileMenuOpen ? 'close' : 'menu'} size={28} />
             </button>
@@ -113,48 +69,30 @@ export const Header = () => {
         </div>
       </header>
 
-      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 xl:hidden">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setIsMobileMenuOpen(false)}></div>
-          <nav className="fixed top-20 right-0 bottom-0 w-64 bg-white shadow-xl p-6 overflow-y-auto">
-            <div className="flex flex-col space-y-4">
-              <div className="pb-4 border-b border-border">
-                <LanguageSelector />
-              </div>
-              {navLinks.map((link) =>
-                link.external ? (
-                  <a
-                    key={link.path}
-                    href={link.path}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={handleMobileMenuClose}
-                    className="text-left px-4 py-3 rounded-lg font-medium transition-colors text-foreground hover:bg-muted"
-                  >
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    onClick={handleMobileMenuClose}
-                    className={`text-left px-4 py-3 rounded-lg font-medium transition-colors ${
-                      isActivePath(link.path)
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-foreground hover:bg-muted'
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                )
-              )}
+          <button className="fixed inset-0 bg-black/40" onClick={() => setIsMobileMenuOpen(false)} aria-label="Cerrar menú" />
+          <nav className="fixed bottom-0 right-0 top-16 w-[min(86vw,340px)] overflow-y-auto bg-white p-6 shadow-2xl sm:top-20">
+            <div className="mb-5 border-b border-border pb-5"><LanguageSelector /></div>
+            <div className="flex flex-col gap-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`rounded-xl px-4 py-3 text-left font-semibold transition-colors ${
+                    isActivePath(link.path) ? 'bg-primary text-primary-foreground' : 'text-ink hover:bg-muted'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
               <Link
-                to="/contact"
-                onClick={handleMobileMenuClose}
-                className="mt-4 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary-hover transition-colors text-center block"
+                to="/comunidad#unirme"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="mt-4 rounded-xl bg-primary px-4 py-3 text-center font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
               >
-                {t.nav.startProcess}
+                Entrar a la comunidad
               </Link>
             </div>
           </nav>
