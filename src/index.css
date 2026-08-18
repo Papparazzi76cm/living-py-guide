@@ -48,17 +48,29 @@
 
     --radius: 0.75rem;
 
+    /* Business Club editorial palette */
+    --ink: 216 45% 11%;          /* deep near-black blue for editorial surfaces */
+    --ink-soft: 216 30% 22%;
+    --sand: 36 34% 96%;          /* warm off-white section background */
+    --sand-deep: 34 28% 90%;
+    --clay: 20 52% 55%;          /* warm accent for scarcity/premium */
+    --clay-soft: 22 60% 94%;
+
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(var(--py-red)) 0%, hsl(var(--py-blue)) 100%);
     --gradient-overlay: linear-gradient(to bottom, rgba(0, 36, 107, 0.7), rgba(0, 36, 107, 0.4));
-    
+    --gradient-ink: linear-gradient(160deg, hsl(var(--ink)) 0%, hsl(216 55% 16%) 55%, hsl(215 60% 20%) 100%);
+    --gradient-sand: linear-gradient(180deg, hsl(var(--sand)) 0%, hsl(0 0% 100%) 100%);
+
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
     --shadow-glow-red: 0 0 20px hsl(var(--py-red) / 0.3);
-    
+    --shadow-card: 0 1px 2px hsl(216 45% 11% / 0.04), 0 12px 32px -18px hsl(216 45% 11% / 0.35);
+    --shadow-card-hover: 0 2px 4px hsl(216 45% 11% / 0.06), 0 24px 48px -20px hsl(216 45% 11% / 0.4);
+
     /* Transitions */
     --transition-base: all 0.2s ease-in-out;
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
