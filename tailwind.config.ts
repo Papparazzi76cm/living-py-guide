@@ -52,6 +52,18 @@ export default {
         'py-red': "hsl(var(--py-red))",
         'py-blue': "hsl(var(--py-blue))",
         'py-blue-dark': "hsl(var(--py-blue-dark))",
+        ink: {
+          DEFAULT: "hsl(var(--ink))",
+          soft: "hsl(var(--ink-soft))",
+        },
+        sand: {
+          DEFAULT: "hsl(var(--sand))",
+          deep: "hsl(var(--sand-deep))",
+        },
+        clay: {
+          DEFAULT: "hsl(var(--clay))",
+          soft: "hsl(var(--clay-soft))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
