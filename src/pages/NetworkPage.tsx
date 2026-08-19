@@ -87,11 +87,11 @@ const NetworkPage = () => (
               key={market.slug}
               className="group relative overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
-              <div className="absolute left-4 top-4 z-10 rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur">
+              <div className="absolute left-4 top-4 z-10 rounded-full border border-border bg-card/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-ink backdrop-blur">
                 Prioridad {String(market.priority).padStart(2, '0')}
               </div>
 
-              <div className="flex min-h-[270px] items-center justify-center bg-black px-5 pb-6 pt-12">
+              <div className="flex min-h-[270px] items-center justify-center bg-muted px-5 pb-6 pt-12">
                 <DelegationFlagLogo market={market.slug} countryName={market.countryName} />
               </div>
 
