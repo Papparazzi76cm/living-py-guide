@@ -21,12 +21,14 @@ import heroAsuncion from '@/assets/hero-asuncion.webp';
 import { CategoryCard } from './CategoryCard';
 import {
   HOME_NEED_CARDS,
-  PARTNER_CATEGORIES,
   CLUB_EVENTS,
   CLUB_RESOURCES,
-  MEMBERSHIP_PRICE_USD,
   MAX_SEATS_PER_CATEGORY,
 } from '@/data/clubData';
+import {
+  ALL_PARTNER_CATEGORIES,
+  MEMBERSHIP_TIERS,
+} from '@/data/membershipCatalog';
 
 const needIcons = { FileCheck, Home, Briefcase, Landmark, GraduationCap, HeartPulse };
 
@@ -79,8 +81,8 @@ export const ClubHero = () => (
 
         <dl className="mt-12 grid max-w-xl grid-cols-2 gap-6 border-t border-white/15 pt-6 sm:grid-cols-3">
           {[
-            { k: '21', v: 'categorías profesionales' },
-            { k: '5', v: 'plazas máximas por categoría' },
+            { k: String(ALL_PARTNER_CATEGORIES.length), v: 'categorías profesionales' },
+            { k: '5', v: 'plazas máximas por rubro A-C' },
             { k: '100%', v: 'gratis para expatriados' },
           ].map((s) => (
             <div key={s.v}>
@@ -125,7 +127,6 @@ export const SectionHeading = ({
   </div>
 );
 
-/* A — Needs grid */
 export const NeedsSection = () => (
   <section className="bg-gradient-sand py-16 sm:py-24">
     <div className="container mx-auto px-4 sm:px-6">
@@ -174,7 +175,6 @@ export const NeedsSection = () => (
   </section>
 );
 
-/* B — How it works */
 const HOW_STEPS = [
   { icon: MessageSquare, title: 'Contanos qué necesitás', text: 'Escribinos tu situación real: familia, empresa, plazos y presupuesto.' },
   { icon: Compass, title: 'Recibí orientación confiable', text: 'Te damos el marco: qué trámite corresponde, qué cuesta y en qué orden hacerlo.' },
@@ -202,7 +202,6 @@ export const HowItWorksSection = () => (
   </section>
 );
 
-/* C — Partner proposition */
 export const PartnerPitchSection = () => (
   <section className="relative overflow-hidden bg-ink py-16 sm:py-24">
     <div className="absolute -left-32 top-10 h-80 w-80 rounded-full bg-secondary/25 blur-3xl" aria-hidden />
@@ -219,7 +218,7 @@ export const PartnerPitchSection = () => (
         </p>
         <ul className="mt-8 space-y-4">
           {[
-            { icon: Users, t: 'Plazas limitadas', d: `Máximo ${MAX_SEATS_PER_CATEGORY} miembros activos por categoría profesional.` },
+            { icon: Users, t: 'Modelo A–D', d: `A, B y C tienen hasta ${MAX_SEATS_PER_CATEGORY} miembros por rubro; D es abierta y gratuita.` },
             { icon: ShieldCheck, t: 'Red verificada', d: 'Admisión revisada: referencias, experiencia y capacidad de atención a extranjeros.' },
             { icon: LineChart, t: 'Seguimiento de derivaciones', d: 'Trazabilidad de cada lead derivado para medir retorno real (en desarrollo).' },
           ].map((b) => (
@@ -251,18 +250,29 @@ export const PartnerPitchSection = () => (
       </div>
 
       <div className="rounded-3xl border border-white/15 bg-white/5 p-6 backdrop-blur sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Membresía anual</p>
-        <p className="mt-3 text-4xl font-bold text-white sm:text-5xl">
-          USD {MEMBERSHIP_PRICE_USD.toLocaleString('en-US')}
-          <span className="ml-2 text-base font-medium text-white/50">/ año</span>
-        </p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Membresía anual por nivel</p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          {(['A', 'B', 'C', 'D'] as const).map((tierKey) => {
+            const tier = MEMBERSHIP_TIERS[tierKey];
+            return (
+              <div key={tierKey} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-primary">Categoría {tierKey}</p>
+                <p className="mt-1 text-xl font-bold text-white">{tier.priceUsd === 0 ? 'Gratis' : `USD ${tier.priceUsd.toLocaleString('en-US')}`}</p>
+                <p className="mt-1 text-xs text-white/50">{tier.ticketProfile}</p>
+                {tier.exclusivityAllowed && (
+                  <p className="mt-2 text-[11px] font-semibold text-primary">Bloqueo: USD {tier.exclusivityPriceUsd.toLocaleString('en-US')}/año</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
         <ul className="mt-6 space-y-3 text-sm text-white/75">
           {[
             'Derivaciones cualificadas de la comunidad',
             'Perfil verificado en el directorio del Club',
             'Participación en eventos y networking mensual',
             'Visibilidad en contenidos y recursos',
-            'Derecho preferente a exclusividad si sos el primero de tu categoría',
+            'Exclusividad opcional en A-C si se cumplen los requisitos',
           ].map((x) => (
             <li key={x} className="flex gap-3">
               <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
@@ -271,17 +281,15 @@ export const PartnerPitchSection = () => (
           ))}
         </ul>
         <p className="mt-6 border-t border-white/15 pt-5 text-xs leading-relaxed text-white/50">
-          Exclusividad de categoría opcional: USD 5.000/año adicionales a la membresía, sujeta a
-          disponibilidad de la categoría.
+          Bloqueo anual: A USD 7.500 · B USD 4.500 · C USD 1.500. Requiere atención en español, inglés, alemán y portugués. Categoría D: sin exclusividad.
         </p>
       </div>
     </div>
   </section>
 );
 
-/* D — Scarcity */
 export const ScarcitySection = () => {
-  const sample = PARTNER_CATEGORIES.filter((c) =>
+  const sample = ALL_PARTNER_CATEGORIES.filter((c) =>
     ['residencia-migraciones', 'inmobiliaria', 'contabilidad-impuestos', 'banca-fintech', 'traduccion', 'tecnologia-ia'].includes(c.slug)
   );
   return (
@@ -289,8 +297,8 @@ export const ScarcitySection = () => {
       <div className="container mx-auto px-4 sm:px-6">
         <SectionHeading
           eyebrow="Plazas por categoría"
-          title="Solo 5 profesionales por rubro"
-          description="El Club no es un directorio abierto. Cada categoría admite un máximo de cinco miembros activos y puede quedar bloqueada por exclusividad."
+          title="A, B y C limitadas. D siempre abierta."
+          description="Las categorías de pago admiten un máximo de cinco miembros activos por rubro. La categoría D no tiene límite de plazas ni posibilidad de exclusividad."
         />
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {sample.map((c) => (
@@ -302,7 +310,7 @@ export const ScarcitySection = () => {
             to="/profesionales"
             className="inline-flex items-center gap-2 rounded-xl border border-ink/20 bg-card px-6 py-3.5 font-semibold text-ink transition-colors hover:bg-muted"
           >
-            Ver las 21 categorías <ArrowRight className="h-5 w-5" />
+            Ver las {ALL_PARTNER_CATEGORIES.length} categorías <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
       </div>
@@ -310,7 +318,6 @@ export const ScarcitySection = () => {
   );
 };
 
-/* E — Guarantee */
 export const GuaranteeSection = () => (
   <section className="bg-background py-16 sm:py-24">
     <div className="container mx-auto px-4 sm:px-6">
@@ -325,7 +332,7 @@ export const GuaranteeSection = () => (
               30 días para ver resultados, o te devolvemos la membresía.
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-ink-soft sm:text-base">
-              Si en tus primeros 30 días como partner no se genera ningún cliente atribuible a
+              Si en tus primeros 30 días como partner de pago (A, B o C) no se genera ningún cliente atribuible a
               través del Club, podés solicitar la devolución íntegra de la membresía.
             </p>
             <p className="mt-4 text-xs leading-relaxed text-ink-soft/80">
@@ -346,7 +353,6 @@ export const GuaranteeSection = () => (
   </section>
 );
 
-/* F — Community */
 export const CommunitySection = () => (
   <section className="bg-sand py-16 sm:py-24">
     <div className="container mx-auto px-4 sm:px-6">
@@ -378,7 +384,6 @@ export const CommunitySection = () => (
   </section>
 );
 
-/* G — Resources */
 export const ResourcesSection = () => (
   <section className="bg-background py-16 sm:py-24">
     <div className="container mx-auto px-4 sm:px-6">
@@ -406,7 +411,6 @@ export const ResourcesSection = () => (
   </section>
 );
 
-/* H — Final dual CTA */
 export const FinalCtaSection = () => (
   <section className="bg-ink py-16 sm:py-24">
     <div className="container mx-auto grid gap-5 px-4 sm:px-6 lg:grid-cols-2">
@@ -429,7 +433,7 @@ export const FinalCtaSection = () => (
           Quiero ser Partner
         </h3>
         <p className="mt-3 text-sm leading-relaxed text-white/70">
-          Plazas limitadas por categoría, derivaciones cualificadas y garantía de 30 días.
+          Membresías A–C según ticket medio y categoría D abierta sin cuota.
         </p>
         <Link
           to="/ser-partner"

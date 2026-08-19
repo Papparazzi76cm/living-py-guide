@@ -6,6 +6,11 @@ import {
   getCategoryStatus,
   CATEGORY_STATUS_LABEL,
 } from '@/data/clubData';
+import {
+  formatMembershipPrice,
+  getMembershipTierConfig,
+  isOpenCategory,
+} from '@/data/membershipCatalog';
 
 const statusStyles: Record<string, string> = {
   available: 'bg-secondary/10 text-secondary border-secondary/20',
@@ -20,6 +25,8 @@ interface Props {
 
 export const CategoryCard = ({ category, compact = false }: Props) => {
   const status = getCategoryStatus(category);
+  const tier = getMembershipTierConfig(category);
+  const open = isOpenCategory(category);
   const free = Math.max(MAX_SEATS_PER_CATEGORY - category.seatsTaken, 0);
 
   return (
@@ -30,32 +37,45 @@ export const CategoryCard = ({ category, compact = false }: Props) => {
           className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${statusStyles[status]}`}
         >
           {status === 'exclusive' && <Lock className="mr-1 inline h-3 w-3" aria-hidden />}
-          {CATEGORY_STATUS_LABEL[status]}
+          {open ? 'Categoría abierta' : CATEGORY_STATUS_LABEL[status]}
         </span>
+      </div>
+
+      <div className="mb-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold">
+        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-primary">Categoría {tier.tier}</span>
+        <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">{formatMembershipPrice(category)}</span>
       </div>
 
       <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{category.description}</p>
 
       <div className="mt-auto space-y-3">
-        <div className="flex items-center gap-1.5" aria-hidden>
-          {Array.from({ length: MAX_SEATS_PER_CATEGORY }).map((_, i) => (
-            <span
-              key={i}
-              className={`h-1.5 flex-1 rounded-full ${
-                i < category.seatsTaken
-                  ? status === 'exclusive'
-                    ? 'bg-ink'
-                    : 'bg-primary'
-                  : 'bg-muted'
-              }`}
-            />
-          ))}
-        </div>
-        <p className="text-xs font-medium text-muted-foreground">
-          {status === 'exclusive'
-            ? 'Categoría bloqueada en exclusividad'
-            : `${free} de ${MAX_SEATS_PER_CATEGORY} plazas disponibles`}
-        </p>
+        {open ? (
+          <p className="rounded-xl bg-muted/60 px-3 py-2 text-xs font-medium text-muted-foreground">
+            Sin límite de plazas · sin bloqueo por exclusividad
+          </p>
+        ) : (
+          <>
+            <div className="flex items-center gap-1.5" aria-hidden>
+              {Array.from({ length: MAX_SEATS_PER_CATEGORY }).map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-1.5 flex-1 rounded-full ${
+                    i < category.seatsTaken
+                      ? status === 'exclusive'
+                        ? 'bg-ink'
+                        : 'bg-primary'
+                      : 'bg-muted'
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="text-xs font-medium text-muted-foreground">
+              {status === 'exclusive'
+                ? 'Categoría bloqueada en exclusividad'
+                : `${free} de ${MAX_SEATS_PER_CATEGORY} plazas disponibles`}
+            </p>
+          </>
+        )}
 
         {!compact && (
           <div className="flex flex-wrap gap-2 pt-1">
