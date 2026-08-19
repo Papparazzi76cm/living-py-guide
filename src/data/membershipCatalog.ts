@@ -96,6 +96,17 @@ export const PARTNER_ZONES: Record<PartnerZoneSlug, PartnerZoneConfig> = {
 export const DEFAULT_PARTNER_ZONE: PartnerZoneSlug = 'gran-asuncion';
 export const PARTNER_ZONE_ORDER: PartnerZoneSlug[] = ['gran-asuncion', 'itapua-encarnacion', 'ciudad-del-este'];
 
+/**
+ * Explicit zone-specific exclusivity locks.
+ * These are independent by territory: a locked rubro in Gran Asunción remains
+ * available in Itapúa and Ciudad del Este unless listed there too.
+ */
+export const REGIONAL_EXCLUSIVE_CATEGORY_SLUGS: Record<PartnerZoneSlug, readonly string[]> = {
+  'gran-asuncion': ['tecnologia-ia'],
+  'itapua-encarnacion': [],
+  'ciudad-del-este': [],
+};
+
 export const REQUIRED_TIER_A_LANGUAGES = ['Español', 'Inglés'] as const;
 export const REQUIRED_EXCLUSIVITY_LANGUAGES = ['Español', 'Inglés', 'Alemán', 'Portugués'] as const;
 
@@ -206,11 +217,24 @@ export const getSeatsTakenForZone = (
   zoneSlug: PartnerZoneSlug = DEFAULT_PARTNER_ZONE,
 ): number => (zoneSlug === DEFAULT_PARTNER_ZONE ? category.seatsTaken : 0);
 
+export const isCategoryExclusiveInZone = (
+  categoryOrSlug: PartnerCategory | string,
+  zoneSlug: PartnerZoneSlug = DEFAULT_PARTNER_ZONE,
+): boolean => {
+  const slug = typeof categoryOrSlug === 'string' ? categoryOrSlug : categoryOrSlug.slug;
+  const category = typeof categoryOrSlug === 'string'
+    ? ALL_PARTNER_CATEGORIES.find((item) => item.slug === categoryOrSlug)
+    : categoryOrSlug;
+
+  if (zoneSlug === DEFAULT_PARTNER_ZONE && category?.exclusive) return true;
+  return REGIONAL_EXCLUSIVE_CATEGORY_SLUGS[zoneSlug].includes(slug);
+};
+
 export const getRegionalCategoryStatus = (
   category: PartnerCategory,
   zoneSlug: PartnerZoneSlug = DEFAULT_PARTNER_ZONE,
 ): CategoryStatus => {
-  if (zoneSlug === DEFAULT_PARTNER_ZONE && category.exclusive) return 'exclusive';
+  if (isCategoryExclusiveInZone(category, zoneSlug)) return 'exclusive';
   if (isOpenCategory(category)) return 'available';
   const maxSeats = getPartnerZoneConfig(zoneSlug).maxSeats;
   const remaining = Math.max(maxSeats - getSeatsTakenForZone(category, zoneSlug), 0);
