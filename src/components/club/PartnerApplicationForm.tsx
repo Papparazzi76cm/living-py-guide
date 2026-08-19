@@ -263,7 +263,9 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
           </div>
         ) : (
           <fieldset className="sm:col-span-2">
-            <legend className={labelClass}>¿Te interesa la exclusividad de categoría (USD 5.000/año adicionales)?</legend>
+            <legend className={labelClass}>
+              ¿Te interesa la exclusividad de categoría{selectedTier ? ` (USD ${selectedTier.exclusivityPriceUsd.toLocaleString('en-US')}/año adicionales)` : ''}?
+            </legend>
             <div className="mt-2 flex gap-3">
               {(['si', 'no'] as const).map((value) => (
                 <label key={value} className={`flex-1 cursor-pointer rounded-xl border px-4 py-3 text-center text-sm font-semibold transition-colors ${form.exclusivityInterest === value ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background text-muted-foreground hover:bg-muted'}`}>
