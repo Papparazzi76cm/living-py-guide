@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import { z } from 'zod';
-import { PARTNER_CATEGORIES } from '@/data/clubData';
+import {
+  ALL_PARTNER_CATEGORIES,
+  canBlockExclusivity,
+  formatMembershipPrice,
+  getMembershipTierConfig,
+  REQUIRED_EXCLUSIVITY_LANGUAGES,
+  REQUIRED_TIER_A_LANGUAGES,
+} from '@/data/membershipCatalog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -55,6 +62,26 @@ const EMPTY: PartnerApplication = {
 const inputClass = 'w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none transition-shadow placeholder:text-muted-foreground focus:ring-2 focus:ring-ring';
 const labelClass = 'mb-1.5 block text-sm font-medium text-ink';
 
+const normalizeLanguageText = (value: string) =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+const LANGUAGE_ALIASES: Record<string, string[]> = {
+  Español: ['espanol', 'castellano', 'spanish'],
+  Inglés: ['ingles', 'english'],
+  Alemán: ['aleman', 'german', 'deutsch'],
+  Portugués: ['portugues', 'portuguese'],
+};
+
+const getMissingLanguages = (value: string, required: readonly string[]) => {
+  const normalized = normalizeLanguageText(value);
+  return required.filter((language) =>
+    !(LANGUAGE_ALIASES[language] ?? [normalizeLanguageText(language)]).some((alias) => normalized.includes(alias))
+  );
+};
+
 interface Props { defaultCategory?: string; }
 
 export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
@@ -63,8 +90,21 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
   const [submitted, setSubmitted] = useState(false);
   const [fieldError, setFieldError] = useState('');
 
+  const selectedCategory = ALL_PARTNER_CATEGORIES.find((item) => item.slug === form.category);
+  const selectedTier = selectedCategory ? getMembershipTierConfig(selectedCategory) : null;
+  const exclusivityAllowed = selectedCategory ? canBlockExclusivity(selectedCategory) : true;
+
   const set = <K extends keyof PartnerApplication>(key: K, value: PartnerApplication[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const handleCategoryChange = (category: string) => {
+    const next = ALL_PARTNER_CATEGORIES.find((item) => item.slug === category);
+    setForm((current) => ({
+      ...current,
+      category,
+      exclusivityInterest: next && !canBlockExclusivity(next) ? 'no' : current.exclusivityInterest,
+    }));
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -84,12 +124,40 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
       return;
     }
 
-    const category = PARTNER_CATEGORIES.find((item) => item.slug === parsed.data.category);
+    const category = ALL_PARTNER_CATEGORIES.find((item) => item.slug === parsed.data.category);
     if (!category) {
       const message = 'La categoría seleccionada no es válida';
       setFieldError(message);
       toast({ title: 'Revisa la postulación', description: message, variant: 'destructive' });
       return;
+    }
+
+    const tier = getMembershipTierConfig(category);
+    if (tier.tier === 'A') {
+      const missing = getMissingLanguages(parsed.data.languages, REQUIRED_TIER_A_LANGUAGES);
+      if (missing.length) {
+        const message = `Las empresas de Categoría A deben poder atender, como mínimo, en español e inglés. Falta indicar: ${missing.join(', ')}.`;
+        setFieldError(message);
+        toast({ title: 'Requisito de idiomas no cumplido', description: message, variant: 'destructive' });
+        return;
+      }
+    }
+
+    if (parsed.data.exclusivityInterest === 'si') {
+      if (!canBlockExclusivity(category)) {
+        const message = 'La Categoría D es abierta, gratuita y no admite bloqueo por exclusividad.';
+        setFieldError(message);
+        toast({ title: 'Exclusividad no disponible', description: message, variant: 'destructive' });
+        return;
+      }
+
+      const missing = getMissingLanguages(parsed.data.languages, REQUIRED_EXCLUSIVITY_LANGUAGES);
+      if (missing.length) {
+        const message = `Para solicitar exclusividad debes poder atender, como mínimo, en español, inglés, alemán y portugués. Falta indicar: ${missing.join(', ')}.`;
+        setFieldError(message);
+        toast({ title: 'Requisito de idiomas no cumplido', description: message, variant: 'destructive' });
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -151,27 +219,62 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
         <div><label className={labelClass} htmlFor="city">Ciudad *</label><input id="city" required className={inputClass} value={form.city} onChange={(e) => set('city', e.target.value)} placeholder="Asunción" /></div>
         <div>
           <label className={labelClass} htmlFor="category">Categoría profesional *</label>
-          <select id="category" required className={inputClass} value={form.category} onChange={(e) => set('category', e.target.value)}>
+          <select id="category" required className={inputClass} value={form.category} onChange={(e) => handleCategoryChange(e.target.value)}>
             <option value="">Selecciona una categoría</option>
-            {PARTNER_CATEGORIES.map((category) => <option key={category.slug} value={category.slug}>{category.name}</option>)}
+            {ALL_PARTNER_CATEGORIES.map((category) => {
+              const tier = getMembershipTierConfig(category);
+              return (
+                <option key={category.slug} value={category.slug}>
+                  {category.name} — Categoría {tier.tier} · {tier.priceUsd === 0 ? 'sin cuota' : `USD ${tier.priceUsd.toLocaleString('en-US')}/año`}
+                </option>
+              );
+            })}
           </select>
-          <p className="mt-1.5 text-xs text-muted-foreground">La ocupación mostrada en el MVP es orientativa; confirmaremos disponibilidad real durante la admisión.</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">La categoría de membresía se determina por el ticket medio y la capacidad estimada de generación de ingresos.</p>
         </div>
+
+        {selectedCategory && selectedTier && (
+          <div className="sm:col-span-2 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <strong className="text-ink">Categoría {selectedTier.tier} · {formatMembershipPrice(selectedCategory)}</strong>
+              <span className="text-xs font-medium text-muted-foreground">{selectedTier.ticketProfile}</span>
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{selectedTier.description}</p>
+            {selectedTier.tier === 'A' && (
+              <p className="mt-2 text-xs font-semibold text-primary">Requisito indispensable: atención al cliente en español e inglés.</p>
+            )}
+          </div>
+        )}
+
         <div><label className={labelClass} htmlFor="website">Web o redes</label><input id="website" className={inputClass} value={form.website} onChange={(e) => set('website', e.target.value)} placeholder="https:// o @usuario" /></div>
         <div><label className={labelClass} htmlFor="years">Años de experiencia *</label><input id="years" type="number" min="0" max="80" required className={inputClass} value={form.yearsExperience} onChange={(e) => set('yearsExperience', e.target.value)} placeholder="8" /></div>
-        <div className="sm:col-span-2"><label className={labelClass} htmlFor="languages">Idiomas de atención *</label><input id="languages" required className={inputClass} value={form.languages} onChange={(e) => set('languages', e.target.value)} placeholder="Español, inglés, portugués" /></div>
+        <div className="sm:col-span-2">
+          <label className={labelClass} htmlFor="languages">Idiomas de atención *</label>
+          <input id="languages" required className={inputClass} value={form.languages} onChange={(e) => set('languages', e.target.value)} placeholder="Español, inglés, alemán, portugués…" />
+          <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+            Categoría A: español + inglés obligatorios. Para bloquear una categoría por exclusividad: español + inglés + alemán + portugués obligatorios.
+          </p>
+        </div>
         <div className="sm:col-span-2"><label className={labelClass} htmlFor="description">Descripción breve de tu servicio *</label><textarea id="description" required rows={4} className={inputClass} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="Qué resuelves para un extranjero que llega a Paraguay y qué experiencia tienes en ese tipo de cliente." /></div>
-        <fieldset className="sm:col-span-2">
-          <legend className={labelClass}>¿Te interesa la exclusividad de categoría (USD 5.000/año adicionales)?</legend>
-          <div className="mt-2 flex gap-3">
-            {(['si', 'no'] as const).map((value) => (
-              <label key={value} className={`flex-1 cursor-pointer rounded-xl border px-4 py-3 text-center text-sm font-semibold transition-colors ${form.exclusivityInterest === value ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background text-muted-foreground hover:bg-muted'}`}>
-                <input type="radio" name="exclusivity" className="sr-only" checked={form.exclusivityInterest === value} onChange={() => set('exclusivityInterest', value)} />
-                {value === 'si' ? 'Sí, me interesa' : 'No por ahora'}
-              </label>
-            ))}
+
+        {selectedCategory && !exclusivityAllowed ? (
+          <div className="sm:col-span-2 rounded-xl border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
+            <strong className="text-ink">Categoría D abierta.</strong> No tiene cuota de membresía, no tiene límite de plazas y no admite bloqueo por exclusividad.
           </div>
-        </fieldset>
+        ) : (
+          <fieldset className="sm:col-span-2">
+            <legend className={labelClass}>¿Te interesa la exclusividad de categoría (USD 5.000/año adicionales)?</legend>
+            <div className="mt-2 flex gap-3">
+              {(['si', 'no'] as const).map((value) => (
+                <label key={value} className={`flex-1 cursor-pointer rounded-xl border px-4 py-3 text-center text-sm font-semibold transition-colors ${form.exclusivityInterest === value ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background text-muted-foreground hover:bg-muted'}`}>
+                  <input type="radio" name="exclusivity" className="sr-only" checked={form.exclusivityInterest === value} onChange={() => set('exclusivityInterest', value)} />
+                  {value === 'si' ? 'Sí, me interesa' : 'No por ahora'}
+                </label>
+              ))}
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">La exclusividad solo puede aprobarse si la empresa acredita atención, como mínimo, en español, inglés, alemán y portugués.</p>
+          </fieldset>
+        )}
 
         <div className="hidden" aria-hidden="true">
           <label htmlFor="partner-confirmation-website">Website confirmation</label>
