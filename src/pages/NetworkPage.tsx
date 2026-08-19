@@ -55,12 +55,10 @@ const NetworkPage = () => (
         </div>
 
         <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-primary/20 bg-card p-7 shadow-sm sm:p-10">
-          <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-primary text-2xl font-black text-primary-foreground">
-              PY
-            </div>
+          <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:text-left">
+            <DelegationFlagLogo market="paraguay" countryName="Paraguay" compact />
             <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                 <h3 className="text-2xl font-bold text-ink">Living Paraguay</h3>
                 <span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-bold text-secondary">ACTIVA · FUNDADORA</span>
               </div>
@@ -93,7 +91,7 @@ const NetworkPage = () => (
                 Prioridad {String(market.priority).padStart(2, '0')}
               </div>
 
-              <div className="flex min-h-[270px] items-center justify-center bg-gradient-to-b from-[#07172d] to-[#020711] px-5 pb-6 pt-12">
+              <div className="flex min-h-[270px] items-center justify-center bg-black px-5 pb-6 pt-12">
                 <DelegationFlagLogo market={market.slug} countryName={market.countryName} />
               </div>
 
