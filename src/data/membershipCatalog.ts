@@ -6,6 +6,7 @@ export interface MembershipTierConfig {
   tier: MembershipTier;
   name: string;
   priceUsd: number;
+  exclusivityPriceUsd: number;
   ticketProfile: string;
   description: string;
   open: boolean;
@@ -17,6 +18,7 @@ export const MEMBERSHIP_TIERS: Record<MembershipTier, MembershipTierConfig> = {
     tier: 'A',
     name: 'Categoría A',
     priceUsd: 2400,
+    exclusivityPriceUsd: 7500,
     ticketProfile: 'Alto ticket / alto valor de cliente',
     description: 'Servicios capaces de generar un retorno elevado con pocas operaciones cerradas.',
     open: false,
@@ -26,6 +28,7 @@ export const MEMBERSHIP_TIERS: Record<MembershipTier, MembershipTierConfig> = {
     tier: 'B',
     name: 'Categoría B',
     priceUsd: 1200,
+    exclusivityPriceUsd: 4500,
     ticketProfile: 'Ticket medio / recurrencia relevante',
     description: 'Servicios con buen valor por cliente, recurrencia o capacidad de venta cruzada.',
     open: false,
@@ -35,6 +38,7 @@ export const MEMBERSHIP_TIERS: Record<MembershipTier, MembershipTierConfig> = {
     tier: 'C',
     name: 'Categoría C',
     priceUsd: 600,
+    exclusivityPriceUsd: 1500,
     ticketProfile: 'Ticket bajo-medio / volumen',
     description: 'Servicios donde el retorno depende más del volumen de derivaciones que de una sola operación.',
     open: false,
@@ -44,14 +48,13 @@ export const MEMBERSHIP_TIERS: Record<MembershipTier, MembershipTierConfig> = {
     tier: 'D',
     name: 'Categoría D',
     priceUsd: 0,
+    exclusivityPriceUsd: 0,
     ticketProfile: 'Servicio de apoyo / conveniencia',
     description: 'Categoría abierta, sin cuota de membresía, sin límite de plazas y sin opción de exclusividad.',
     open: true,
     exclusivityAllowed: false,
   },
 };
-
-export const EXCLUSIVITY_PREMIUM_USD = 5000;
 
 export const REQUIRED_TIER_A_LANGUAGES = ['Español', 'Inglés'] as const;
 export const REQUIRED_EXCLUSIVITY_LANGUAGES = ['Español', 'Inglés', 'Alemán', 'Portugués'] as const;
@@ -131,7 +134,17 @@ export const isOpenCategory = (categoryOrSlug: PartnerCategory | string): boolea
 export const canBlockExclusivity = (categoryOrSlug: PartnerCategory | string): boolean =>
   getMembershipTierConfig(categoryOrSlug).exclusivityAllowed;
 
+export const getExclusivityPriceUsd = (categoryOrSlug: PartnerCategory | string): number =>
+  getMembershipTierConfig(categoryOrSlug).exclusivityPriceUsd;
+
 export const formatMembershipPrice = (categoryOrSlug: PartnerCategory | string): string => {
   const config = getMembershipTierConfig(categoryOrSlug);
   return config.priceUsd === 0 ? 'Sin cuota de membresía' : `USD ${config.priceUsd.toLocaleString('en-US')}/año`;
+};
+
+export const formatExclusivityPrice = (categoryOrSlug: PartnerCategory | string): string => {
+  const config = getMembershipTierConfig(categoryOrSlug);
+  return config.exclusivityAllowed
+    ? `USD ${config.exclusivityPriceUsd.toLocaleString('en-US')}/año`
+    : 'Exclusividad no disponible';
 };
