@@ -4,10 +4,16 @@ import { z } from 'zod';
 import {
   ALL_PARTNER_CATEGORIES,
   canBlockExclusivity,
+  DEFAULT_PARTNER_ZONE,
   formatMembershipPrice,
   getMembershipTierConfig,
+  getPartnerZoneConfig,
+  getRegionalExclusivityPriceUsd,
+  PARTNER_ZONE_ORDER,
+  PARTNER_ZONES,
   REQUIRED_EXCLUSIVITY_LANGUAGES,
   REQUIRED_TIER_A_LANGUAGES,
+  type PartnerZoneSlug,
 } from '@/data/membershipCatalog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -18,6 +24,7 @@ const schema = z.object({
   email: z.string().trim().email('Introduce un email válido').max(254).transform((value) => value.toLowerCase()),
   whatsapp: z.string().trim().min(6, 'Indica un WhatsApp válido').max(40),
   city: z.string().trim().min(2, 'Indica tu ciudad').max(100),
+  zone: z.enum(['gran-asuncion', 'itapua-encarnacion', 'ciudad-del-este']),
   category: z.string().trim().min(2, 'Selecciona una categoría').max(100),
   website: z.string().trim().max(300).optional(),
   description: z.string().trim().min(20, 'Describe tu servicio con al menos 20 caracteres').max(2000),
@@ -33,6 +40,7 @@ export interface PartnerApplication {
   email: string;
   whatsapp: string;
   city: string;
+  zone: PartnerZoneSlug;
   category: string;
   website: string;
   description: string;
@@ -43,13 +51,14 @@ export interface PartnerApplication {
   confirmationWebsite: string;
 }
 
-const EMPTY: PartnerApplication = {
+const makeEmpty = (zone: PartnerZoneSlug, category = ''): PartnerApplication => ({
   name: '',
   company: '',
   email: '',
   whatsapp: '',
   city: '',
-  category: '',
+  zone,
+  category,
   website: '',
   description: '',
   yearsExperience: '',
@@ -57,7 +66,7 @@ const EMPTY: PartnerApplication = {
   exclusivityInterest: 'no',
   consent: false,
   confirmationWebsite: '',
-};
+});
 
 const inputClass = 'w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none transition-shadow placeholder:text-muted-foreground focus:ring-2 focus:ring-ring';
 const labelClass = 'mb-1.5 block text-sm font-medium text-ink';
@@ -82,17 +91,27 @@ const getMissingLanguages = (value: string, required: readonly string[]) => {
   );
 };
 
-interface Props { defaultCategory?: string; }
+interface Props {
+  defaultCategory?: string;
+  defaultZone?: PartnerZoneSlug;
+}
 
-export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
-  const [form, setForm] = useState<PartnerApplication>({ ...EMPTY, category: defaultCategory });
+export const PartnerApplicationForm = ({
+  defaultCategory = '',
+  defaultZone = DEFAULT_PARTNER_ZONE,
+}: Props) => {
+  const [form, setForm] = useState<PartnerApplication>(makeEmpty(defaultZone, defaultCategory));
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [fieldError, setFieldError] = useState('');
 
   const selectedCategory = ALL_PARTNER_CATEGORIES.find((item) => item.slug === form.category);
   const selectedTier = selectedCategory ? getMembershipTierConfig(selectedCategory) : null;
+  const selectedZone = getPartnerZoneConfig(form.zone);
   const exclusivityAllowed = selectedCategory ? canBlockExclusivity(selectedCategory) : true;
+  const exclusivityPrice = selectedCategory
+    ? getRegionalExclusivityPriceUsd(selectedCategory, form.zone)
+    : 0;
 
   const set = <K extends keyof PartnerApplication>(key: K, value: PartnerApplication[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -160,13 +179,14 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
       }
     }
 
-    setSubmitting(true);
-    const { error } = await supabase.from('partner_applications').insert([{
+    const zone = getPartnerZoneConfig(parsed.data.zone);
+    const payload = {
       name: parsed.data.name,
       company: parsed.data.company,
       email: parsed.data.email,
       whatsapp: parsed.data.whatsapp,
       city: parsed.data.city,
+      zone_slug: zone.slug,
       category_slug: category.slug,
       category_name: category.name,
       website: parsed.data.website || null,
@@ -176,15 +196,18 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
       exclusivity_interest: parsed.data.exclusivityInterest === 'si',
       consent_privacy: true,
       source: 'partner_page',
-    }]);
+    };
+
+    setSubmitting(true);
+    const { error } = await supabase.from('partner_applications').insert([payload]);
     setSubmitting(false);
 
     if (error) {
       const duplicate = error.code === '23505';
       toast({
-        title: duplicate ? 'Ya tenemos una postulación en esta categoría' : 'No hemos podido guardar la postulación',
+        title: duplicate ? 'Ya tenemos una postulación en este rubro y zona' : 'No hemos podido guardar la postulación',
         description: duplicate
-          ? 'Ese email ya tiene una candidatura para este rubro. Si necesitas modificarla, contacta con Living Paraguay.'
+          ? 'Ese email ya tiene una candidatura para esta categoría en la zona seleccionada. Si necesitas modificarla, contacta con Living Paraguay.'
           : 'Inténtalo de nuevo en unos minutos.',
         variant: duplicate ? 'default' : 'destructive',
       });
@@ -193,8 +216,8 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
     }
 
     setSubmitted(true);
-    setForm({ ...EMPTY, category: defaultCategory });
-    toast({ title: 'Postulación recibida', description: 'Revisaremos tu perfil antes de confirmar una plaza del Business Club.' });
+    setForm(makeEmpty(defaultZone, defaultCategory));
+    toast({ title: 'Postulación recibida', description: `Revisaremos tu perfil para ${zone.name} antes de confirmar una plaza del Business Club.` });
   };
 
   if (submitted) {
@@ -203,7 +226,7 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
         <CheckCircle2 className="mx-auto h-12 w-12 text-secondary" />
         <h3 className="mt-5 text-xl font-bold text-ink sm:text-2xl">Postulación registrada.</h3>
         <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-          Revisaremos experiencia, referencias, capacidad de atención a expatriados y disponibilidad real de la categoría antes de confirmar la admisión. No se realiza ningún pago en esta fase.
+          Revisaremos experiencia, referencias, capacidad de atención a expatriados y disponibilidad real de la categoría y zona antes de confirmar la admisión. No se realiza ningún pago en esta fase.
         </p>
       </div>
     );
@@ -216,8 +239,21 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
         <div><label className={labelClass} htmlFor="company">Empresa o estudio *</label><input id="company" required className={inputClass} value={form.company} onChange={(e) => set('company', e.target.value)} placeholder="González & Asociados" /></div>
         <div><label className={labelClass} htmlFor="email">Email *</label><input id="email" type="email" required className={inputClass} value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="maria@estudio.com.py" /></div>
         <div><label className={labelClass} htmlFor="whatsapp">WhatsApp *</label><input id="whatsapp" required className={inputClass} value={form.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} placeholder="+595 9xx xxx xxx" /></div>
-        <div><label className={labelClass} htmlFor="city">Ciudad *</label><input id="city" required className={inputClass} value={form.city} onChange={(e) => set('city', e.target.value)} placeholder="Asunción" /></div>
+
         <div>
+          <label className={labelClass} htmlFor="zone">Zona de actividad *</label>
+          <select id="zone" required className={inputClass} value={form.zone} onChange={(e) => set('zone', e.target.value as PartnerZoneSlug)}>
+            {PARTNER_ZONE_ORDER.map((zoneSlug) => {
+              const zone = PARTNER_ZONES[zoneSlug];
+              return <option key={zone.slug} value={zone.slug}>{zone.name}</option>;
+            })}
+          </select>
+          <p className="mt-1.5 text-xs text-muted-foreground">La cuota, el límite de plazas y el bloqueo se calculan por zona.</p>
+        </div>
+
+        <div><label className={labelClass} htmlFor="city">Ciudad / sede *</label><input id="city" required className={inputClass} value={form.city} onChange={(e) => set('city', e.target.value)} placeholder={form.zone === 'itapua-encarnacion' ? 'Encarnación' : form.zone === 'ciudad-del-este' ? 'Ciudad del Este' : 'Asunción'} /></div>
+
+        <div className="sm:col-span-2">
           <label className={labelClass} htmlFor="category">Categoría profesional *</label>
           <select id="category" required className={inputClass} value={form.category} onChange={(e) => handleCategoryChange(e.target.value)}>
             <option value="">Selecciona una categoría</option>
@@ -225,21 +261,24 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
               const tier = getMembershipTierConfig(category);
               return (
                 <option key={category.slug} value={category.slug}>
-                  {category.name} — Categoría {tier.tier} · {tier.priceUsd === 0 ? 'sin cuota' : `USD ${tier.priceUsd.toLocaleString('en-US')}/año`}
+                  {category.name} — Categoría {tier.tier} · {formatMembershipPrice(category, form.zone)}
                 </option>
               );
             })}
           </select>
-          <p className="mt-1.5 text-xs text-muted-foreground">La categoría de membresía se determina por el ticket medio y la capacidad estimada de generación de ingresos.</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">La categoría A-D depende del ticket medio; el precio final depende también de la zona elegida.</p>
         </div>
 
         {selectedCategory && selectedTier && (
           <div className="sm:col-span-2 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <strong className="text-ink">Categoría {selectedTier.tier} · {formatMembershipPrice(selectedCategory)}</strong>
-              <span className="text-xs font-medium text-muted-foreground">{selectedTier.ticketProfile}</span>
+              <strong className="text-ink">Categoría {selectedTier.tier} · {formatMembershipPrice(selectedCategory, form.zone)}</strong>
+              <span className="text-xs font-medium text-muted-foreground">{selectedZone.shortName}</span>
             </div>
             <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{selectedTier.description}</p>
+            {!selectedTier.open && (
+              <p className="mt-2 text-xs font-medium text-muted-foreground">Máximo {selectedZone.maxSeats} empresas por rubro en esta zona.</p>
+            )}
             {selectedTier.tier === 'A' && (
               <p className="mt-2 text-xs font-semibold text-primary">Requisito indispensable: atención al cliente en español e inglés.</p>
             )}
@@ -259,12 +298,12 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
 
         {selectedCategory && !exclusivityAllowed ? (
           <div className="sm:col-span-2 rounded-xl border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
-            <strong className="text-ink">Categoría D abierta.</strong> No tiene cuota de membresía, no tiene límite de plazas y no admite bloqueo por exclusividad.
+            <strong className="text-ink">Categoría D abierta.</strong> No tiene cuota de membresía, no tiene límite de plazas y no admite bloqueo por exclusividad en ninguna zona.
           </div>
         ) : (
           <fieldset className="sm:col-span-2">
             <legend className={labelClass}>
-              ¿Te interesa la exclusividad de categoría{selectedTier ? ` (USD ${selectedTier.exclusivityPriceUsd.toLocaleString('en-US')}/año adicionales)` : ''}?
+              ¿Te interesa la exclusividad de categoría{selectedTier ? ` (USD ${exclusivityPrice.toLocaleString('en-US')}/año adicionales)` : ''}?
             </legend>
             <div className="mt-2 flex gap-3">
               {(['si', 'no'] as const).map((value) => (
@@ -274,7 +313,11 @@ export const PartnerApplicationForm = ({ defaultCategory = '' }: Props) => {
                 </label>
               ))}
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">La exclusividad solo puede aprobarse si la empresa acredita atención, como mínimo, en español, inglés, alemán y portugués.</p>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              {form.zone === DEFAULT_PARTNER_ZONE
+                ? 'Gran Asunción mantiene la tarifa de bloqueo propia de cada nivel.'
+                : 'En esta zona el bloqueo cuesta el doble de la membresía individual.'} Para aprobarlo, la empresa debe acreditar atención, como mínimo, en español, inglés, alemán y portugués.
+            </p>
           </fieldset>
         )}
 
