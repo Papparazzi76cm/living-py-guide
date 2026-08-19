@@ -16,12 +16,16 @@ export type Database = {
         Row: {
           city: string | null
           consent_privacy: boolean
+          country_code: string
           created_at: string
           email: string
           id: string
           interests: string[]
+          market_name: string
+          market_slug: string
           name: string
           nationality: string | null
+          network_brand_slug: string
           notes: string | null
           source: string
           stage: string
@@ -32,12 +36,16 @@ export type Database = {
         Insert: {
           city?: string | null
           consent_privacy?: boolean
+          country_code?: string
           created_at?: string
           email: string
           id?: string
           interests?: string[]
+          market_name?: string
+          market_slug?: string
           name: string
           nationality?: string | null
+          network_brand_slug?: string
           notes?: string | null
           source?: string
           stage?: string
@@ -48,12 +56,16 @@ export type Database = {
         Update: {
           city?: string | null
           consent_privacy?: boolean
+          country_code?: string
           created_at?: string
           email?: string
           id?: string
           interests?: string[]
+          market_name?: string
+          market_slug?: string
           name?: string
           nationality?: string | null
+          network_brand_slug?: string
           notes?: string | null
           source?: string
           stage?: string
@@ -66,11 +78,15 @@ export type Database = {
       contact_inquiries: {
         Row: {
           consent_privacy: boolean
+          country_code: string
           created_at: string
           email: string
           id: string
+          market_name: string
+          market_slug: string
           message: string
           name: string
+          network_brand_slug: string
           source: string
           status: string
           subject: string
@@ -78,11 +94,15 @@ export type Database = {
         }
         Insert: {
           consent_privacy?: boolean
+          country_code?: string
           created_at?: string
           email: string
           id?: string
+          market_name?: string
+          market_slug?: string
           message: string
           name: string
+          network_brand_slug?: string
           source?: string
           status?: string
           subject: string
@@ -90,14 +110,63 @@ export type Database = {
         }
         Update: {
           consent_privacy?: boolean
+          country_code?: string
           created_at?: string
           email?: string
           id?: string
+          market_name?: string
+          market_slug?: string
           message?: string
           name?: string
+          network_brand_slug?: string
           source?: string
           status?: string
           subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      network_markets: {
+        Row: {
+          brand_name: string
+          country_code: string
+          country_name: string
+          created_at: string
+          currency_code: string
+          locale: string
+          network_brand_slug: string
+          operator_model: string
+          pricing_status: string
+          slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          brand_name: string
+          country_code: string
+          country_name: string
+          created_at?: string
+          currency_code: string
+          locale: string
+          network_brand_slug?: string
+          operator_model: string
+          pricing_status: string
+          slug: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          brand_name?: string
+          country_code?: string
+          country_name?: string
+          created_at?: string
+          currency_code?: string
+          locale?: string
+          network_brand_slug?: string
+          operator_model?: string
+          pricing_status?: string
+          slug?: string
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -136,19 +205,29 @@ export type Database = {
           city: string
           company: string
           consent_privacy: boolean
+          country_code: string
           created_at: string
           description: string
           email: string
           exclusivity_interest: boolean
+          exclusivity_price_usd: number
           id: string
           languages: string
+          market_name: string
+          market_slug: string
+          membership_price_usd: number
+          membership_tier: string
           name: string
+          network_brand_slug: string
           source: string
           status: string
           updated_at: string
           website: string | null
           whatsapp: string
           years_experience: number
+          zone_max_seats: number
+          zone_name: string
+          zone_slug: string
         }
         Insert: {
           category_name: string
@@ -156,19 +235,29 @@ export type Database = {
           city: string
           company: string
           consent_privacy?: boolean
+          country_code?: string
           created_at?: string
           description: string
           email: string
           exclusivity_interest?: boolean
+          exclusivity_price_usd?: number
           id?: string
           languages: string
+          market_name?: string
+          market_slug?: string
+          membership_price_usd?: number
+          membership_tier?: string
           name: string
+          network_brand_slug?: string
           source?: string
           status?: string
           updated_at?: string
           website?: string | null
           whatsapp: string
           years_experience: number
+          zone_max_seats?: number
+          zone_name?: string
+          zone_slug?: string
         }
         Update: {
           category_name?: string
@@ -176,19 +265,29 @@ export type Database = {
           city?: string
           company?: string
           consent_privacy?: boolean
+          country_code?: string
           created_at?: string
           description?: string
           email?: string
           exclusivity_interest?: boolean
+          exclusivity_price_usd?: number
           id?: string
           languages?: string
+          market_name?: string
+          market_slug?: string
+          membership_price_usd?: number
+          membership_tier?: string
           name?: string
+          network_brand_slug?: string
           source?: string
           status?: string
           updated_at?: string
           website?: string | null
           whatsapp?: string
           years_experience?: number
+          zone_max_seats?: number
+          zone_name?: string
+          zone_slug?: string
         }
         Relationships: []
       }
