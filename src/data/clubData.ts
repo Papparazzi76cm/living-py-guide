@@ -150,6 +150,36 @@ export const PARTNER_CATEGORIES: PartnerCategory[] = [
     seatsTaken: 0,
   },
   {
+    slug: 'cuidado-mayores',
+    name: 'Cuidado de mayores',
+    description: 'Asistencia domiciliaria, acompañamiento y cuidadores profesionales para personas mayores.',
+    seatsTaken: 0,
+  },
+  {
+    slug: 'manitas-24-horas',
+    name: 'Servicio manitas 24 horas',
+    description: 'Reparaciones urgentes y pequeñas incidencias del hogar con atención disponible las 24 horas.',
+    seatsTaken: 0,
+  },
+  {
+    slug: 'veterinaria',
+    name: 'Servicio de Veterinaria',
+    description: 'Clínicas veterinarias, consultas, urgencias, vacunación y atención sanitaria para mascotas.',
+    seatsTaken: 0,
+  },
+  {
+    slug: 'cuidado-mascotas',
+    name: 'Cuidado de mascotas',
+    description: 'Pet sitting, paseos, guardería, alojamiento y cuidado de mascotas a domicilio.',
+    seatsTaken: 0,
+  },
+  {
+    slug: 'chefs-domicilio',
+    name: 'Chefs a domicilio',
+    description: 'Chefs privados, cocina a domicilio, menús personalizados y servicios gastronómicos para hogares y eventos.',
+    seatsTaken: 0,
+  },
+  {
     slug: 'servicios-hogar',
     name: 'Servicios para el hogar',
     description: 'Mantenimiento, climatización, seguridad y personal doméstico.',
