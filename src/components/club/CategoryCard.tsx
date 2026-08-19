@@ -2,14 +2,17 @@ import { Link } from 'react-router-dom';
 import { Lock, ArrowRight } from 'lucide-react';
 import {
   PartnerCategory,
-  MAX_SEATS_PER_CATEGORY,
-  getCategoryStatus,
   CATEGORY_STATUS_LABEL,
 } from '@/data/clubData';
 import {
+  DEFAULT_PARTNER_ZONE,
   formatMembershipPrice,
   getMembershipTierConfig,
+  getPartnerZoneConfig,
+  getRegionalCategoryStatus,
+  getSeatsTakenForZone,
   isOpenCategory,
+  type PartnerZoneSlug,
 } from '@/data/membershipCatalog';
 
 const statusStyles: Record<string, string> = {
@@ -21,13 +24,17 @@ const statusStyles: Record<string, string> = {
 interface Props {
   category: PartnerCategory;
   compact?: boolean;
+  zoneSlug?: PartnerZoneSlug;
 }
 
-export const CategoryCard = ({ category, compact = false }: Props) => {
-  const status = getCategoryStatus(category);
+export const CategoryCard = ({ category, compact = false, zoneSlug = DEFAULT_PARTNER_ZONE }: Props) => {
+  const status = getRegionalCategoryStatus(category, zoneSlug);
   const tier = getMembershipTierConfig(category);
+  const zone = getPartnerZoneConfig(zoneSlug);
   const open = isOpenCategory(category);
-  const free = Math.max(MAX_SEATS_PER_CATEGORY - category.seatsTaken, 0);
+  const seatsTaken = getSeatsTakenForZone(category, zoneSlug);
+  const free = Math.max(zone.maxSeats - seatsTaken, 0);
+  const showDemoPartners = zoneSlug === DEFAULT_PARTNER_ZONE && Boolean(category.demoPartners?.length);
 
   return (
     <article className="club-card group flex h-full flex-col rounded-2xl border border-border bg-card p-5 sm:p-6">
@@ -43,7 +50,8 @@ export const CategoryCard = ({ category, compact = false }: Props) => {
 
       <div className="mb-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold">
         <span className="rounded-full bg-primary/10 px-2.5 py-1 text-primary">Categoría {tier.tier}</span>
-        <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">{formatMembershipPrice(category)}</span>
+        <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">{formatMembershipPrice(category, zoneSlug)}</span>
+        <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">{zone.shortName}</span>
       </div>
 
       <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{category.description}</p>
@@ -56,11 +64,11 @@ export const CategoryCard = ({ category, compact = false }: Props) => {
         ) : (
           <>
             <div className="flex items-center gap-1.5" aria-hidden>
-              {Array.from({ length: MAX_SEATS_PER_CATEGORY }).map((_, i) => (
+              {Array.from({ length: zone.maxSeats }).map((_, i) => (
                 <span
                   key={i}
                   className={`h-1.5 flex-1 rounded-full ${
-                    i < category.seatsTaken
+                    i < seatsTaken
                       ? status === 'exclusive'
                         ? 'bg-ink'
                         : 'bg-primary'
@@ -72,14 +80,14 @@ export const CategoryCard = ({ category, compact = false }: Props) => {
             <p className="text-xs font-medium text-muted-foreground">
               {status === 'exclusive'
                 ? 'Categoría bloqueada en exclusividad'
-                : `${free} de ${MAX_SEATS_PER_CATEGORY} plazas disponibles`}
+                : `${free} de ${zone.maxSeats} plazas disponibles en ${zone.shortName}`}
             </p>
           </>
         )}
 
         {!compact && (
           <div className="flex flex-wrap gap-2 pt-1">
-            {category.demoPartners?.length ? (
+            {showDemoPartners ? (
               <Link
                 to={`/profesionales#${category.slug}`}
                 className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm font-medium text-ink transition-colors hover:bg-muted"
@@ -89,7 +97,7 @@ export const CategoryCard = ({ category, compact = false }: Props) => {
             ) : null}
             {status !== 'exclusive' && (
               <Link
-                to={`/ser-partner?categoria=${category.slug}`}
+                to={`/ser-partner?categoria=${category.slug}&zona=${zoneSlug}`}
                 className="inline-flex items-center gap-1 rounded-lg bg-ink px-3 py-2 text-sm font-semibold text-sand transition-colors hover:bg-ink-soft"
               >
                 Postular
