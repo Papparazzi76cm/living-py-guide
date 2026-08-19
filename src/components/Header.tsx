@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Icon } from './Icon';
 import { LanguageSelector } from './LanguageSelector';
-import logo from '@/assets/logo.png';
+import { BrandLockup } from './brand/BrandLockup';
+import { ACTIVE_MARKET, LBC_NETWORK } from '@/config/network';
 
 export const Header = () => {
   const location = useLocation();
@@ -10,11 +11,12 @@ export const Header = () => {
 
   const navLinks = [
     { path: '/', label: 'Inicio' },
-    { path: '/vivir-en-paraguay', label: 'Vivir en Paraguay' },
+    { path: '/vivir-en-paraguay', label: `Vivir en ${ACTIVE_MARKET.countryName}` },
     { path: '/profesionales', label: 'Profesionales' },
     { path: '/comunidad', label: 'Comunidad' },
     { path: '/recursos', label: 'Recursos' },
     { path: '/ser-partner', label: 'Ser Partner' },
+    { path: '/lbc', label: `Red ${LBC_NETWORK.initials}` },
   ];
 
   const isActivePath = (path: string) => {
@@ -27,11 +29,11 @@ export const Header = () => {
       <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/70 bg-white/95 shadow-sm backdrop-blur-xl">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex h-16 items-center justify-between sm:h-20">
-            <Link to="/" className="flex items-center transition-opacity hover:opacity-80" aria-label="Living Paraguay - Inicio">
-              <img src={logo} alt="Living Paraguay" className="h-16 w-auto sm:h-20" />
+            <Link to="/" className="flex items-center transition-opacity hover:opacity-80" aria-label={`${ACTIVE_MARKET.brandName} - Inicio`}>
+              <BrandLockup market={ACTIVE_MARKET} compact />
             </Link>
 
-            <nav className="hidden items-center gap-5 xl:flex">
+            <nav className="hidden items-center gap-4 xl:flex">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}

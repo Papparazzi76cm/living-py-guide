@@ -2,18 +2,20 @@ import { Link } from 'react-router-dom';
 import { Icon } from './Icon';
 import { useLanguage } from '../contexts/LanguageContext';
 import { NewsletterForm } from './NewsletterForm';
-import logo from '@/assets/logo.png';
+import { BrandLockup } from './brand/BrandLockup';
+import { ACTIVE_MARKET, LBC_NETWORK } from '@/config/network';
 
 export const Footer = () => {
   const { t } = useLanguage();
 
   const navLinks = [
     { path: '/', label: 'Inicio' },
-    { path: '/vivir-en-paraguay', label: 'Vivir en Paraguay' },
+    { path: '/vivir-en-paraguay', label: `Vivir en ${ACTIVE_MARKET.countryName}` },
     { path: '/profesionales', label: 'Profesionales' },
     { path: '/comunidad', label: 'Comunidad' },
     { path: '/recursos', label: 'Recursos' },
     { path: '/ser-partner', label: 'Ser Partner' },
+    { path: '/lbc', label: `Red ${LBC_NETWORK.initials}` },
   ];
 
   const socialLinks = {
@@ -27,8 +29,11 @@ export const Footer = () => {
       <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12">
         <div className="mb-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <div>
-            <img src={logo} alt="Living Paraguay" className="mb-4 h-24 w-auto brightness-0 invert" />
-            <p className="text-sm text-gray-300">Comunidad, recursos y una red profesional para vivir, instalarse y emprender en Paraguay.</p>
+            <BrandLockup market={ACTIVE_MARKET} inverted />
+            <p className="mt-4 text-sm leading-relaxed text-gray-300">Comunidad, recursos y una red profesional para vivir, instalarse y emprender en {ACTIVE_MARKET.countryName}.</p>
+            <Link to="/lbc" className="mt-5 inline-flex rounded-xl border border-white/15 bg-white/5 px-3 py-2 transition-colors hover:bg-white/10" aria-label={`Conocer ${LBC_NETWORK.name}`}>
+              <BrandLockup variant="network" inverted compact />
+            </Link>
           </div>
 
           <div>
@@ -62,6 +67,7 @@ export const Footer = () => {
 
         <div className="border-t border-white/10 pt-8 text-center">
           <p className="text-sm text-gray-400">{t.footer.copyright}</p>
+          <p className="mt-2 text-xs text-gray-500">{ACTIVE_MARKET.brandName} · Delegación de {LBC_NETWORK.name}</p>
         </div>
       </div>
     </footer>

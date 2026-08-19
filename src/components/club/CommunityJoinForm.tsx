@@ -3,11 +3,12 @@ import { CheckCircle2, Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { ACTIVE_MARKET } from '@/config/network';
 
 const STAGES = [
   { value: 'planning', label: 'Estoy preparando mi mudanza' },
   { value: 'arriving', label: 'Estoy llegando / primeros 90 días' },
-  { value: 'living', label: 'Ya vivo en Paraguay' },
+  { value: 'living', label: `Ya vivo en ${ACTIVE_MARKET.countryName}` },
 ] as const;
 
 const INTERESTS = [
@@ -106,6 +107,10 @@ export const CommunityJoinForm = () => {
       notes: parsed.data.notes || null,
       consent_privacy: true,
       source: 'community_page',
+      market_slug: ACTIVE_MARKET.slug,
+      market_name: ACTIVE_MARKET.brandName,
+      country_code: ACTIVE_MARKET.countryCode,
+      network_brand_slug: 'lbc',
     }]);
     setSubmitting(false);
 
@@ -124,7 +129,7 @@ export const CommunityJoinForm = () => {
 
     setSubmitted(true);
     setForm(EMPTY);
-    toast({ title: 'Bienvenido a Living Paraguay', description: 'Hemos recibido tu alta en la comunidad.' });
+    toast({ title: `Bienvenido a ${ACTIVE_MARKET.brandName}`, description: 'Hemos recibido tu alta en la comunidad.' });
   };
 
   if (submitted) {
@@ -183,7 +188,7 @@ export const CommunityJoinForm = () => {
 
         <div className="sm:col-span-2">
           <label className={labelClass} htmlFor="community-notes">Cuéntanos brevemente qué necesitas</label>
-          <textarea id="community-notes" rows={4} className={inputClass} value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Por ejemplo: llego con mi familia en octubre y necesito vivienda, colegio y residencia…" />
+          <textarea id="community-notes" rows={4} className={inputClass} value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={`Por ejemplo: llego con mi familia y necesito vivienda, colegio y residencia en ${ACTIVE_MARKET.countryName}…`} />
         </div>
 
         <div className="hidden" aria-hidden="true">
@@ -193,7 +198,7 @@ export const CommunityJoinForm = () => {
 
         <label className="sm:col-span-2 flex items-start gap-3 rounded-xl bg-muted/50 p-4 text-xs leading-relaxed text-muted-foreground">
           <input type="checkbox" required className="mt-0.5 h-4 w-4 accent-primary" checked={form.consent} onChange={(e) => set('consent', e.target.checked)} />
-          <span>Acepto que Living Paraguay trate estos datos para gestionar mi alta y contactarme sobre la comunidad. Este consentimiento no incluye el newsletter comercial.</span>
+          <span>Acepto que {ACTIVE_MARKET.brandName} trate estos datos para gestionar mi alta y contactarme sobre la comunidad. Este consentimiento no incluye el newsletter comercial.</span>
         </label>
       </div>
 

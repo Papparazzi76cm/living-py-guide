@@ -4,6 +4,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { Chatbot } from './Chatbot';
 import { Breadcrumbs } from './Breadcrumbs';
+import { ACTIVE_MARKET, LBC_NETWORK } from '@/config/network';
 
 interface LayoutProps {
   children: ReactNode;
@@ -14,78 +15,65 @@ interface LayoutProps {
 }
 
 export const Layout = ({ children, title, description, canonical, noHeaderPadding = false }: LayoutProps) => {
-  const fullTitle = `${title} | Living Paraguay`;
-  const baseUrl = 'https://livingparaguay.com'; // Actualizar con tu dominio real
+  const fullTitle = `${title} | ${ACTIVE_MARKET.brandName}`;
+  const baseUrl = ACTIVE_MARKET.baseUrl ?? 'https://livingparaguay.com';
+  const canonicalUrl = canonical || `${baseUrl}${window.location.pathname}`;
 
   return (
     <>
       <Helmet>
         <title>{fullTitle}</title>
         <meta name="description" content={description} />
-        <link rel="canonical" href={canonical || `${baseUrl}${window.location.pathname}`} />
-        
-        {/* Open Graph */}
+        <link rel="canonical" href={canonicalUrl} />
+
         <meta property="og:title" content={fullTitle} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={canonical || `${baseUrl}${window.location.pathname}`} />
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:image" content={`${baseUrl}/og-image.jpg`} />
-        
-        {/* Twitter */}
+
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={fullTitle} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={`${baseUrl}/og-image.jpg`} />
-        
-        {/* Language */}
-        <html lang="es" />
 
-        {/* LocalBusiness Schema - Applied to all pages */}
+        <html lang={ACTIVE_MARKET.locale.split('-')[0]} />
+
         <script type="application/ld+json">
           {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "ProfessionalService",
-            "name": "Living Paraguay",
-            "description": "Guía completa para vivir, trabajar e invertir en Paraguay. Información sobre residencia, impuestos, vivienda y calidad de vida.",
-            "url": "https://livingparaguay.com",
-            "logo": "https://livingparaguay.com/og-image.jpg",
-            "image": "https://livingparaguay.com/og-image.jpg",
-            "address": {
-              "@type": "PostalAddress",
-              "addressCountry": "PY",
-              "addressRegion": "Asunción",
-              "addressLocality": "Asunción"
+            '@context': 'https://schema.org',
+            '@type': 'ProfessionalService',
+            name: ACTIVE_MARKET.brandName,
+            description,
+            url: baseUrl,
+            logo: `${baseUrl}/og-image.jpg`,
+            image: `${baseUrl}/og-image.jpg`,
+            parentOrganization: {
+              '@type': 'Organization',
+              name: LBC_NETWORK.name,
             },
-            "areaServed": {
-              "@type": "Country",
-              "name": "Paraguay"
+            address: {
+              '@type': 'PostalAddress',
+              addressCountry: ACTIVE_MARKET.countryCode,
             },
-            "serviceType": [
-              "Asesoría de Residencia",
-              "Información Fiscal",
-              "Búsqueda de Vivienda",
-              "Guías de Expatriación"
+            areaServed: {
+              '@type': 'Country',
+              name: ACTIVE_MARKET.countryName,
+            },
+            serviceType: [
+              'Comunidad de expatriados',
+              'Directorio profesional verificado',
+              'Business Club',
+              'Relocation y soft landing',
             ],
-            "contactPoint": {
-              "@type": "ContactPoint",
-              "contactType": "Customer Service",
-              "availableLanguage": ["Spanish", "Portuguese", "English"]
-            },
-            "sameAs": [
-              "https://twitter.com/livingparaguay",
-              "https://facebook.com/livingparaguay",
-              "https://instagram.com/livingparaguay"
-            ]
           })}
         </script>
       </Helmet>
-      
+
       <div className="min-h-screen">
         <Header />
         {!noHeaderPadding && <div className="pt-16 sm:pt-20"><Breadcrumbs /></div>}
-        <main className={noHeaderPadding ? '' : ''}>
-          {children}
-        </main>
+        <main>{children}</main>
         <Footer />
         <Chatbot />
       </div>
