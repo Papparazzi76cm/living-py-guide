@@ -5,15 +5,15 @@ import {
   ALL_PARTNER_CATEGORIES,
   canBlockExclusivity,
   DEFAULT_PARTNER_ZONE,
-  formatMembershipPrice,
+  getMembershipTier,
   getMembershipTierConfig,
   getPartnerZoneConfig,
   getRegionalCategoryStatus,
-  getRegionalExclusivityPriceUsd,
   PARTNER_ZONE_ORDER,
   PARTNER_ZONES,
   REQUIRED_EXCLUSIVITY_LANGUAGES,
   REQUIRED_TIER_A_LANGUAGES,
+  type MembershipTier,
   type PartnerZoneSlug,
 } from '@/data/membershipCatalog';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,6 +51,8 @@ export interface PartnerApplication {
   consent: boolean;
   confirmationWebsite: string;
 }
+
+const TIER_ORDER: MembershipTier[] = ['A', 'B', 'C', 'D'];
 
 const makeEmpty = (zone: PartnerZoneSlug, category = ''): PartnerApplication => ({
   name: '',
@@ -113,9 +115,13 @@ export const PartnerApplicationForm = ({
     ? getRegionalCategoryStatus(selectedCategory, form.zone) === 'exclusive'
     : false;
   const exclusivityAllowed = selectedCategory ? canBlockExclusivity(selectedCategory) : true;
-  const exclusivityPrice = selectedCategory
-    ? getRegionalExclusivityPriceUsd(selectedCategory, form.zone)
-    : 0;
+
+  const groupedCategories = TIER_ORDER.map((tier) => ({
+    tier,
+    categories: ALL_PARTNER_CATEGORIES
+      .filter((category) => getMembershipTier(category) === tier)
+      .sort((a, b) => a.name.localeCompare(b.name, 'es')),
+  }));
 
   const set = <K extends keyof PartnerApplication>(key: K, value: PartnerApplication[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -193,7 +199,7 @@ export const PartnerApplicationForm = ({
 
     if (parsed.data.exclusivityInterest === 'si') {
       if (!canBlockExclusivity(category)) {
-        const message = 'La Categoría D es abierta, gratuita y no admite bloqueo por exclusividad.';
+        const message = 'La Categoría D es abierta y no admite bloqueo por exclusividad.';
         setFieldError(message);
         toast({ title: 'Exclusividad no disponible', description: message, variant: 'destructive' });
         return;
@@ -262,7 +268,7 @@ export const PartnerApplicationForm = ({
         <CheckCircle2 className="mx-auto h-12 w-12 text-secondary" />
         <h3 className="mt-5 text-xl font-bold text-ink sm:text-2xl">Postulación registrada.</h3>
         <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-          Revisaremos experiencia, referencias, capacidad de atención a expatriados y disponibilidad real de la categoría y zona antes de confirmar la admisión. No se realiza ningún pago en esta fase.
+          Revisaremos experiencia, referencias, capacidad de atención a expatriados y disponibilidad real de la categoría y zona. Si el perfil encaja, te contactaremos para explicarte personalmente las modalidades y condiciones comerciales.
         </p>
       </div>
     );
@@ -284,7 +290,7 @@ export const PartnerApplicationForm = ({
               return <option key={zone.slug} value={zone.slug}>{zone.name}</option>;
             })}
           </select>
-          <p className="mt-1.5 text-xs text-muted-foreground">La cuota, el límite de plazas y el bloqueo se calculan por zona.</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">La disponibilidad y condiciones se gestionan de forma independiente por zona.</p>
         </div>
 
         <div><label className={labelClass} htmlFor="city">Ciudad / sede *</label><input id="city" required className={inputClass} value={form.city} onChange={(e) => set('city', e.target.value)} placeholder={form.zone === 'itapua-encarnacion' ? 'Encarnación' : form.zone === 'ciudad-del-este' ? 'Ciudad del Este' : 'Asunción'} /></div>
@@ -293,26 +299,29 @@ export const PartnerApplicationForm = ({
           <label className={labelClass} htmlFor="category">Categoría profesional *</label>
           <select id="category" required className={inputClass} value={form.category} onChange={(e) => handleCategoryChange(e.target.value)}>
             <option value="">Selecciona una categoría</option>
-            {ALL_PARTNER_CATEGORIES.map((category) => {
-              const tier = getMembershipTierConfig(category);
-              const locked = getRegionalCategoryStatus(category, form.zone) === 'exclusive';
-              return (
-                <option key={category.slug} value={category.slug} disabled={locked}>
-                  {category.name} — Categoría {tier.tier} · {locked ? 'Bloqueada en exclusividad' : formatMembershipPrice(category, form.zone)}
-                </option>
-              );
-            })}
+            {groupedCategories.map((group) => (
+              <optgroup key={group.tier} label={`Categoría ${group.tier}`}>
+                {group.categories.map((category) => {
+                  const locked = getRegionalCategoryStatus(category, form.zone) === 'exclusive';
+                  return (
+                    <option key={category.slug} value={category.slug} disabled={locked}>
+                      {category.name}{locked ? ' — Bloqueada en exclusividad' : ''}
+                    </option>
+                  );
+                })}
+              </optgroup>
+            ))}
           </select>
-          <p className="mt-1.5 text-xs text-muted-foreground">La categoría A-D depende del ticket medio; el precio final y la disponibilidad dependen también de la zona elegida.</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">Los rubros aparecen ordenados por Categoría A, B, C y D. Las condiciones comerciales se comunican tras revisar la candidatura.</p>
         </div>
 
         {selectedCategory && selectedTier && (
           <div className={`sm:col-span-2 rounded-xl border p-4 text-sm ${selectedCategoryLocked ? 'border-ink/20 bg-ink/5' : 'border-primary/20 bg-primary/5'}`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <strong className="text-ink">Categoría {selectedTier.tier} · {selectedCategoryLocked ? 'Bloqueada en exclusividad' : formatMembershipPrice(selectedCategory, form.zone)}</strong>
+              <strong className="text-ink">Categoría {selectedTier.tier} · {selectedCategory.name}</strong>
               <span className="text-xs font-medium text-muted-foreground">{selectedZone.shortName}</span>
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{selectedTier.description}</p>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{selectedTier.description.replace('Categoría abierta, sin cuota de membresía, ', 'Categoría abierta, ')}</p>
             {selectedCategoryLocked ? (
               <p className="mt-2 text-xs font-semibold text-ink">No se admiten nuevas empresas en este rubro dentro de esta zona mientras el bloqueo esté vigente.</p>
             ) : !selectedTier.open ? (
@@ -330,7 +339,7 @@ export const PartnerApplicationForm = ({
           <label className={labelClass} htmlFor="languages">Idiomas de atención *</label>
           <input id="languages" required className={inputClass} value={form.languages} onChange={(e) => set('languages', e.target.value)} placeholder="Español, inglés, alemán, portugués…" />
           <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-            Categoría A: español + inglés obligatorios. Para bloquear una categoría por exclusividad: español + inglés + alemán + portugués obligatorios.
+            Categoría A: español + inglés obligatorios. Para solicitar exclusividad: español + inglés + alemán + portugués obligatorios.
           </p>
         </div>
         <div className="sm:col-span-2"><label className={labelClass} htmlFor="description">Descripción breve de tu servicio *</label><textarea id="description" required rows={4} className={inputClass} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="Qué resuelves para un extranjero que llega a Paraguay y qué experiencia tienes en ese tipo de cliente." /></div>
@@ -341,13 +350,11 @@ export const PartnerApplicationForm = ({
           </div>
         ) : selectedCategory && !exclusivityAllowed ? (
           <div className="sm:col-span-2 rounded-xl border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
-            <strong className="text-ink">Categoría D abierta.</strong> No tiene cuota de membresía, no tiene límite de plazas y no admite bloqueo por exclusividad en ninguna zona.
+            <strong className="text-ink">Categoría D abierta.</strong> No tiene límite de plazas y no admite bloqueo por exclusividad en ninguna zona.
           </div>
         ) : (
           <fieldset className="sm:col-span-2">
-            <legend className={labelClass}>
-              ¿Te interesa la exclusividad de categoría{selectedTier ? ` (USD ${exclusivityPrice.toLocaleString('en-US')}/año adicionales)` : ''}?
-            </legend>
+            <legend className={labelClass}>¿Te interesa estudiar la exclusividad de categoría?</legend>
             <div className="mt-2 flex gap-3">
               {(['si', 'no'] as const).map((value) => (
                 <label key={value} className={`flex-1 cursor-pointer rounded-xl border px-4 py-3 text-center text-sm font-semibold transition-colors ${form.exclusivityInterest === value ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background text-muted-foreground hover:bg-muted'}`}>
@@ -357,9 +364,7 @@ export const PartnerApplicationForm = ({
               ))}
             </div>
             <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-              {form.zone === DEFAULT_PARTNER_ZONE
-                ? 'Gran Asunción mantiene la tarifa de bloqueo propia de cada nivel.'
-                : 'En esta zona el bloqueo cuesta el doble de la membresía individual.'} Para aprobarlo, la empresa debe acreditar atención, como mínimo, en español, inglés, alemán y portugués.
+              La disponibilidad y condiciones de exclusividad se explican personalmente después de revisar el rubro y la zona. Para aprobarla, la empresa debe acreditar atención, como mínimo, en español, inglés, alemán y portugués.
             </p>
           </fieldset>
         )}
@@ -380,7 +385,7 @@ export const PartnerApplicationForm = ({
         {submitting && <Loader2 className="h-5 w-5 animate-spin" />}
         {selectedCategoryLocked ? 'Categoría no disponible' : 'Enviar postulación'}
       </button>
-      <p className="mt-4 text-xs leading-relaxed text-muted-foreground">Sin pago en esta etapa. La membresía solo se formaliza después de la revisión y aceptación de la candidatura.</p>
+      <p className="mt-4 text-xs leading-relaxed text-muted-foreground">No se solicita ningún pago al enviar la candidatura. Si tu perfil encaja, te contactaremos para explicarte el proyecto y las condiciones aplicables.</p>
     </form>
   );
 };
