@@ -32,6 +32,8 @@ const BlogPostPage = lazy(() => import("./pages/BlogPostPage"));
 const ApostillarDocumentosPage = lazy(() => import("./pages/blog/ApostillarDocumentosPage"));
 const AdminLoginPage = lazy(() => import("./pages/admin/AdminLoginPage"));
 const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
+const CrmLoginPage = lazy(() => import("./pages/crm/CrmLoginPage"));
+const CrmDashboardPage = lazy(() => import("./pages/crm/CrmDashboardPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -67,15 +69,11 @@ const ActiveMarketRoutes = () => (
     <Route path="/blog/:slug" element={<BlogPostPage />} />
     <Route path="/blog/apostillar-documentos" element={<ApostillarDocumentosPage />} />
 
+    <Route path="/crm/login" element={<CrmLoginPage />} />
+    <Route path="/crm" element={<ProtectedRoute loginPath="/crm/login"><CrmDashboardPage /></ProtectedRoute>} />
+
     <Route path="/admin/login" element={<AdminLoginPage />} />
-    <Route
-      path="/admin/dashboard"
-      element={
-        <ProtectedRoute requireAdmin>
-          <AdminDashboardPage />
-        </ProtectedRoute>
-      }
-    />
+    <Route path="/admin/dashboard" element={<ProtectedRoute requireAdmin><AdminDashboardPage /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
