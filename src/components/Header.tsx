@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Icon } from './Icon';
 import { LanguageSelector } from './LanguageSelector';
-import logo from '@/assets/logo.png';
+import { BrandLockup } from './brand/BrandLockup';
 import { ACTIVE_MARKET, LBC_NETWORK } from '@/config/network';
 
 export const Header = () => {
@@ -30,7 +30,7 @@ export const Header = () => {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex h-16 items-center justify-between sm:h-20">
             <Link to="/" className="flex items-center transition-opacity hover:opacity-80" aria-label={`${ACTIVE_MARKET.brandName} - Inicio`}>
-              <img src={logo} alt="Living Paraguay" className="h-16 w-auto sm:h-20" />
+              <BrandLockup market={ACTIVE_MARKET} compact />
             </Link>
 
             <nav className="hidden items-center gap-4 xl:flex">
