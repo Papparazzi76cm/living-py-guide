@@ -176,10 +176,10 @@ export type CrmDatabase = {
       crm_tasks: TableDef<CrmTask>;
       crm_feedback: TableDef<CrmFeedback>;
     };
-    Views: Record<string, never>;
+    Views: Record<never, never>;
     Functions: {
       crm_claim_partner_access: {
-        Args: Record<string, never>;
+        Args: Record<never, never>;
         Returns: number;
       };
       crm_activate_partner_application: {
@@ -195,11 +195,11 @@ export type CrmDatabase = {
         Returns: boolean;
       };
       crm_is_admin: {
-        Args: Record<string, never>;
+        Args: Record<never, never>;
         Returns: boolean;
       };
     };
-    Enums: Record<string, never>;
-    CompositeTypes: Record<string, never>;
+    Enums: Record<never, never>;
+    CompositeTypes: Record<never, never>;
   };
 };
