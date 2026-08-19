@@ -3,7 +3,6 @@ import { Icon } from './Icon';
 import { useLanguage } from '../contexts/LanguageContext';
 import { NewsletterForm } from './NewsletterForm';
 import { BrandLockup } from './brand/BrandLockup';
-import logo from '@/assets/logo.png';
 import { ACTIVE_MARKET, LBC_NETWORK } from '@/config/network';
 
 export const Footer = () => {
@@ -30,9 +29,11 @@ export const Footer = () => {
       <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12">
         <div className="mb-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <div>
-            <img src={logo} alt="Living Paraguay" className="mb-4 h-24 w-auto brightness-0 invert" />
-            <p className="text-sm leading-relaxed text-gray-300">Comunidad, recursos y una red profesional para vivir, instalarse y emprender en {ACTIVE_MARKET.countryName}.</p>
+            {/* Logo de la delegación local. En esta web: Living Paraguay. */}
+            <BrandLockup market={ACTIVE_MARKET} inverted />
+            <p className="mt-4 text-sm leading-relaxed text-gray-300">Comunidad, recursos y una red profesional para vivir, instalarse y emprender en {ACTIVE_MARKET.countryName}.</p>
 
+            {/* Marca matriz: debe aparecer en el footer de todas las delegaciones. */}
             <Link
               to="/lbc"
               className="mt-6 inline-flex transition-opacity hover:opacity-85"
