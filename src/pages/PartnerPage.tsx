@@ -5,7 +5,6 @@ import { PartnerApplicationForm } from '../components/club/PartnerApplicationFor
 import { MAX_SEATS_PER_CATEGORY } from '../data/clubData';
 import {
   ALL_PARTNER_CATEGORIES,
-  EXCLUSIVITY_PREMIUM_USD,
   MEMBERSHIP_TIERS,
   type MembershipTier,
 } from '../data/membershipCatalog';
@@ -69,6 +68,11 @@ const PartnerPage = () => {
                     <p className="mt-1 text-xs text-white/50">{tier.priceUsd === 0 ? 'sin membresía anual' : 'por año'}</p>
                     <p className="mt-3 text-sm font-medium text-white/80">{tier.ticketProfile}</p>
                     <p className="mt-2 text-xs leading-relaxed text-white/55">{tier.description}</p>
+                    {tier.exclusivityAllowed && (
+                      <p className="mt-3 border-t border-white/10 pt-3 text-xs font-semibold text-primary">
+                        Bloqueo exclusivo: USD {tier.exclusivityPriceUsd.toLocaleString('en-US')}/año
+                      </p>
+                    )}
                   </div>
                 );
               })}
@@ -76,7 +80,7 @@ const PartnerPage = () => {
           </div>
 
           <div className="mt-8 rounded-2xl border border-primary/30 bg-primary/10 p-5 text-sm leading-relaxed text-white/75">
-            <strong className="text-white">Exclusividad:</strong> disponible solo en categorías A, B y C por + USD {EXCLUSIVITY_PREMIUM_USD.toLocaleString('en-US')}/año. Para solicitarla, la empresa debe poder atender como mínimo en español, inglés, alemán y portugués. La Categoría D no admite exclusividad.
+            <strong className="text-white">Exclusividad:</strong> A: USD 7.500/año · B: USD 4.500/año · C: USD 1.500/año. Para solicitarla, la empresa debe poder atender como mínimo en español, inglés, alemán y portugués. La Categoría D no admite exclusividad.
           </div>
         </div>
       </section>
@@ -86,9 +90,9 @@ const PartnerPage = () => {
           <h2 className="text-2xl font-bold text-ink sm:text-3xl">Cómo funcionan las categorías</h2>
           <div className="mt-8 grid gap-4 sm:gap-6 lg:grid-cols-4">
             {[
-              { t: 'A · USD 2.400/año', d: 'Alto ticket o alto valor por cliente. Requisito indispensable: atención en español e inglés.' },
-              { t: 'B · USD 1.200/año', d: 'Ticket medio, recurrencia o buen potencial de venta cruzada.' },
-              { t: 'C · USD 600/año', d: 'Ticket bajo-medio donde el retorno depende más del volumen de derivaciones.' },
+              { t: 'A · USD 2.400/año', d: 'Alto ticket o alto valor por cliente. Requisito indispensable: atención en español e inglés. Exclusividad: USD 7.500/año.' },
+              { t: 'B · USD 1.200/año', d: 'Ticket medio, recurrencia o buen potencial de venta cruzada. Exclusividad: USD 4.500/año.' },
+              { t: 'C · USD 600/año', d: 'Ticket bajo-medio donde el retorno depende más del volumen de derivaciones. Exclusividad: USD 1.500/año.' },
               { t: 'D · Abierta y gratuita', d: 'Sin cuota de membresía, sin límite de plazas y sin posibilidad de bloqueo por exclusividad.' },
             ].map((item) => (
               <div key={item.t} className="club-card rounded-2xl border border-border bg-card p-6">
