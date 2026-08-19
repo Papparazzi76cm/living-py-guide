@@ -27,7 +27,6 @@ import {
 } from '@/data/clubData';
 import {
   ALL_PARTNER_CATEGORIES,
-  EXCLUSIVITY_PREMIUM_USD,
   MEMBERSHIP_TIERS,
 } from '@/data/membershipCatalog';
 
@@ -128,7 +127,6 @@ export const SectionHeading = ({
   </div>
 );
 
-/* A — Needs grid */
 export const NeedsSection = () => (
   <section className="bg-gradient-sand py-16 sm:py-24">
     <div className="container mx-auto px-4 sm:px-6">
@@ -177,7 +175,6 @@ export const NeedsSection = () => (
   </section>
 );
 
-/* B — How it works */
 const HOW_STEPS = [
   { icon: MessageSquare, title: 'Contanos qué necesitás', text: 'Escribinos tu situación real: familia, empresa, plazos y presupuesto.' },
   { icon: Compass, title: 'Recibí orientación confiable', text: 'Te damos el marco: qué trámite corresponde, qué cuesta y en qué orden hacerlo.' },
@@ -205,7 +202,6 @@ export const HowItWorksSection = () => (
   </section>
 );
 
-/* C — Partner proposition */
 export const PartnerPitchSection = () => (
   <section className="relative overflow-hidden bg-ink py-16 sm:py-24">
     <div className="absolute -left-32 top-10 h-80 w-80 rounded-full bg-secondary/25 blur-3xl" aria-hidden />
@@ -263,6 +259,9 @@ export const PartnerPitchSection = () => (
                 <p className="text-xs font-bold uppercase tracking-wider text-primary">Categoría {tierKey}</p>
                 <p className="mt-1 text-xl font-bold text-white">{tier.priceUsd === 0 ? 'Gratis' : `USD ${tier.priceUsd.toLocaleString('en-US')}`}</p>
                 <p className="mt-1 text-xs text-white/50">{tier.ticketProfile}</p>
+                {tier.exclusivityAllowed && (
+                  <p className="mt-2 text-[11px] font-semibold text-primary">Bloqueo: USD {tier.exclusivityPriceUsd.toLocaleString('en-US')}/año</p>
+                )}
               </div>
             );
           })}
@@ -282,14 +281,13 @@ export const PartnerPitchSection = () => (
           ))}
         </ul>
         <p className="mt-6 border-t border-white/15 pt-5 text-xs leading-relaxed text-white/50">
-          Exclusividad opcional en A, B y C: USD {EXCLUSIVITY_PREMIUM_USD.toLocaleString('en-US')}/año adicionales. Requiere atención en español, inglés, alemán y portugués. Categoría D: sin exclusividad.
+          Bloqueo anual: A USD 7.500 · B USD 4.500 · C USD 1.500. Requiere atención en español, inglés, alemán y portugués. Categoría D: sin exclusividad.
         </p>
       </div>
     </div>
   </section>
 );
 
-/* D — Scarcity */
 export const ScarcitySection = () => {
   const sample = ALL_PARTNER_CATEGORIES.filter((c) =>
     ['residencia-migraciones', 'inmobiliaria', 'contabilidad-impuestos', 'banca-fintech', 'traduccion', 'tecnologia-ia'].includes(c.slug)
@@ -320,7 +318,6 @@ export const ScarcitySection = () => {
   );
 };
 
-/* E — Guarantee */
 export const GuaranteeSection = () => (
   <section className="bg-background py-16 sm:py-24">
     <div className="container mx-auto px-4 sm:px-6">
@@ -356,7 +353,6 @@ export const GuaranteeSection = () => (
   </section>
 );
 
-/* F — Community */
 export const CommunitySection = () => (
   <section className="bg-sand py-16 sm:py-24">
     <div className="container mx-auto px-4 sm:px-6">
@@ -388,7 +384,6 @@ export const CommunitySection = () => (
   </section>
 );
 
-/* G — Resources */
 export const ResourcesSection = () => (
   <section className="bg-background py-16 sm:py-24">
     <div className="container mx-auto px-4 sm:px-6">
@@ -416,7 +411,6 @@ export const ResourcesSection = () => (
   </section>
 );
 
-/* H — Final dual CTA */
 export const FinalCtaSection = () => (
   <section className="bg-ink py-16 sm:py-24">
     <div className="container mx-auto grid gap-5 px-4 sm:px-6 lg:grid-cols-2">
