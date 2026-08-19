@@ -39,7 +39,7 @@ export const Footer = () => {
               className="mt-6 inline-flex transition-opacity hover:opacity-85"
               aria-label={`Conocer ${LBC_NETWORK.name}`}
             >
-              <BrandLockup variant="network" inverted />
+              <BrandLockup variant="network" inverted compact />
             </Link>
           </div>
 

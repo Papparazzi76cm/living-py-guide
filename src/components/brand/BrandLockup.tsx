@@ -1,4 +1,5 @@
 import logo from '@/assets/logo.png';
+import lbcSymbol from '@/assets/lbc-symbol.svg';
 import { ACTIVE_MARKET, LBC_NETWORK, type MarketConfig } from '@/config/network';
 
 type BrandLockupVariant = 'network' | 'market';
@@ -11,17 +12,29 @@ interface BrandLockupProps {
   className?: string;
 }
 
-const LbcSymbol = ({ inverted = false, compact = false }: { inverted?: boolean; compact?: boolean }) => (
-  <svg
+const LbcSymbol = ({
+  inverted = false,
+  compact = false,
+  prominent = false,
+}: {
+  inverted?: boolean;
+  compact?: boolean;
+  prominent?: boolean;
+}) => (
+  <img
+    src={lbcSymbol}
+    alt=""
     aria-hidden="true"
-    viewBox="0 0 534 508"
-    className={`${compact ? 'h-12 w-12' : 'h-16 w-16 sm:h-20 sm:w-20'} shrink-0 ${inverted ? 'text-white' : 'text-secondary'}`}
-  >
-    <path
-      fill="currentColor"
-      d="M529 0 L496 42 L446 73 L350 105 L138 152 L84 176 L27 221 L0 271 L1 347 L37 428 L83 483 L111 507 L315 507 L264 490 L253 474 L386 414 L448 365 L469 336 L483 302 L490 253 L506 222 L519 176 L533 53 Z"
-    />
-  </svg>
+    className={`block shrink-0 object-contain ${
+      prominent
+        ? compact
+          ? 'h-14 w-16'
+          : 'h-20 w-24 sm:h-24 sm:w-28'
+        : compact
+          ? 'h-12 w-12'
+          : 'h-16 w-16 sm:h-20 sm:w-20'
+    } ${inverted ? 'brightness-0 invert' : ''}`}
+  />
 );
 
 export const BrandLockup = ({
@@ -32,19 +45,29 @@ export const BrandLockup = ({
   className = '',
 }: BrandLockupProps) => {
   const textColor = inverted ? 'text-white' : 'text-ink';
-  const subColor = inverted ? 'text-white/75' : 'text-muted-foreground';
 
   if (variant === 'network') {
     return (
-      <div className={`inline-flex items-center gap-3 ${className}`} aria-label={`${LBC_NETWORK.initials} ${LBC_NETWORK.name}`}>
-        <LbcSymbol inverted={inverted} compact={compact} />
-        <div className="leading-none">
-          <div className={`font-black uppercase tracking-[0.08em] ${compact ? 'text-xl' : 'text-2xl sm:text-3xl'} ${textColor}`}>
-            {LBC_NETWORK.initials}
-          </div>
-          <div className={`mt-1.5 font-bold uppercase tracking-[0.08em] ${compact ? 'text-[10px]' : 'text-xs sm:text-sm'} ${subColor}`}>
-            {LBC_NETWORK.name}
-          </div>
+      <div
+        className={`inline-flex flex-col items-center text-center ${className}`}
+        aria-label={`${LBC_NETWORK.initials} ${LBC_NETWORK.name}`}
+      >
+        <LbcSymbol inverted={inverted} compact={compact} prominent />
+        <div
+          className={`mt-1 uppercase leading-none tracking-[0.055em] ${
+            compact ? 'text-2xl' : 'text-3xl sm:text-4xl'
+          } ${textColor}`}
+          style={{ fontFamily: "'Lato', sans-serif", fontWeight: 900 }}
+        >
+          {LBC_NETWORK.initials}
+        </div>
+        <div
+          className={`mt-1 uppercase leading-none tracking-[0.055em] ${
+            compact ? 'text-[9px]' : 'text-[11px] sm:text-xs'
+          } ${textColor}`}
+          style={{ fontFamily: "'Lato', sans-serif", fontWeight: 900 }}
+        >
+          {LBC_NETWORK.name}
         </div>
       </div>
     );
