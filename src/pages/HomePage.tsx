@@ -4,9 +4,6 @@ import {
   ClubHero,
   NeedsSection,
   HowItWorksSection,
-  PartnerPitchSection,
-  ScarcitySection,
-  GuaranteeSection,
   CommunitySection,
   ResourcesSection,
   FinalCtaSection,
@@ -38,9 +35,6 @@ const HomePage = () => (
     <ClubHero />
     <NeedsSection />
     <HowItWorksSection />
-    <PartnerPitchSection />
-    <ScarcitySection />
-    <GuaranteeSection />
     <CommunitySection />
     <ResourcesSection />
     <FinalCtaSection />

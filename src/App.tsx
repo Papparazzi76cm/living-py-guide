@@ -17,6 +17,7 @@ const ProfessionalsPage = lazy(() => import("./pages/ProfessionalsPage"));
 const CommunityPage = lazy(() => import("./pages/CommunityPage"));
 const ResourcesPage = lazy(() => import("./pages/ResourcesPage"));
 const PartnerPage = lazy(() => import("./pages/PartnerPage"));
+const PartnerTierPage = lazy(() => import("./pages/PartnerTierPage"));
 const NetworkPage = lazy(() => import("./pages/NetworkPage"));
 const MarketComingSoonPage = lazy(() => import("./pages/MarketComingSoonPage"));
 const PermitsPage = lazy(() => import("./pages/PermitsPage"));
@@ -52,6 +53,7 @@ const ActiveMarketRoutes = () => (
     <Route path="/comunidad" element={<CommunityPage />} />
     <Route path="/recursos" element={<ResourcesPage />} />
     <Route path="/ser-partner" element={<PartnerPage />} />
+    <Route path="/ser-partner/:tierSlug" element={<PartnerTierPage />} />
     <Route path="/lbc" element={<NetworkPage />} />
 
     <Route path="/permits" element={<PermitsPage />} />

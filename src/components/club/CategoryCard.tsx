@@ -6,7 +6,6 @@ import {
 } from '@/data/clubData';
 import {
   DEFAULT_PARTNER_ZONE,
-  formatMembershipPrice,
   getMembershipTierConfig,
   getPartnerZoneConfig,
   getRegionalCategoryStatus,
@@ -50,7 +49,6 @@ export const CategoryCard = ({ category, compact = false, zoneSlug = DEFAULT_PAR
 
       <div className="mb-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold">
         <span className="rounded-full bg-primary/10 px-2.5 py-1 text-primary">Categoría {tier.tier}</span>
-        <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">{formatMembershipPrice(category, zoneSlug)}</span>
         <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">{zone.shortName}</span>
       </div>
 
@@ -59,7 +57,7 @@ export const CategoryCard = ({ category, compact = false, zoneSlug = DEFAULT_PAR
       <div className="mt-auto space-y-3">
         {open ? (
           <p className="rounded-xl bg-muted/60 px-3 py-2 text-xs font-medium text-muted-foreground">
-            Sin límite de plazas · sin bloqueo por exclusividad
+            Modelo abierto · sin bloqueo por exclusividad
           </p>
         ) : (
           <>

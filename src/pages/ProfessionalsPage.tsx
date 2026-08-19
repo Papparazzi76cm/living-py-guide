@@ -61,7 +61,7 @@ const ProfessionalsPage = () => {
           <p className="club-eyebrow text-primary">Directorio del Club</p>
           <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-5xl" style={{ color: 'hsl(var(--py-white))' }}>Profesionales verificados, zona por zona.</h1>
           <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/75 sm:text-base">
-            Gran Asunción admite hasta 5 miembros por rubro en A, B y C. Itapúa (Encarnación) y Ciudad del Este admiten hasta 3 y tienen cuotas al 50%. La categoría D es abierta, gratuita y sin exclusividad en todas las zonas.
+            Gran Asunción admite hasta 5 miembros por rubro en A, B y C. Itapúa (Encarnación) y Ciudad del Este admiten hasta 3. La categoría D mantiene un modelo abierto y sin exclusividad.
           </p>
 
           <div className="mt-8 rounded-2xl border border-white/15 bg-white/5 p-4">
