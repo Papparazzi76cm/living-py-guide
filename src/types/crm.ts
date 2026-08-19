@@ -161,6 +161,9 @@ type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
 };
 
 export type CrmDatabase = {
+  __InternalSupabase: {
+    PostgrestVersion: "14.15";
+  };
   public: {
     Tables: {
       crm_delegation_users: TableDef<CrmDelegationUser>;

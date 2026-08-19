@@ -54,9 +54,9 @@ interface PartnerApplicationRow {
   name: string;
   email: string;
   category_name: string;
-  membership_tier: string;
-  zone_name: string;
-  market_slug: string;
+  membership_tier?: string | null;
+  zone_name?: string | null;
+  market_slug?: string | null;
   status: string;
   created_at: string;
 }
@@ -123,7 +123,7 @@ const CrmDashboardPage = () => {
       crmSupabase.from('crm_lead_assignments').select('*').order('assigned_at', { ascending: false }),
       crmSupabase.from('crm_tasks').select('*').order('due_at'),
       crmSupabase.from('crm_activities').select('*').order('occurred_at', { ascending: false }).limit(300),
-      supabase.from('partner_applications').select('id,company,name,email,category_name,membership_tier,zone_name,market_slug,status,created_at').in('status', ['new', 'screening', 'waitlist', 'approved']).order('created_at', { ascending: false }).limit(100),
+      supabase.from('partner_applications').select('id,company,name,email,category_name,status,created_at').in('status', ['new', 'screening', 'waitlist', 'approved']).order('created_at', { ascending: false }).limit(100),
     ]);
 
     const errors = [partnerRes.error, delegationRes.error, membershipRes.error, leadRes.error, assignmentRes.error, taskRes.error, activityRes.error]
@@ -139,7 +139,7 @@ const CrmDashboardPage = () => {
     setAssignments(assignmentRes.data ?? []);
     setTasks(taskRes.data ?? []);
     setActivities(activityRes.data ?? []);
-    setApplications((applicationRes.data as PartnerApplicationRow[] | null) ?? []);
+    setApplications((applicationRes.data as unknown as PartnerApplicationRow[] | null) ?? []);
     setLoading(false);
     setRefreshing(false);
   }, [isAdmin, toast, user]);
@@ -393,8 +393,8 @@ const CrmDashboardPage = () => {
                         return (
                           <TableRow key={application.id}>
                             <TableCell><p className="font-semibold">{application.company}</p><p className="text-xs text-muted-foreground">{application.name} · {application.email}</p></TableCell>
-                            <TableCell><Badge variant="outline">{application.membership_tier}</Badge><span className="ml-2 text-xs">{application.category_name}</span></TableCell>
-                            <TableCell>{application.zone_name}</TableCell>
+                            <TableCell><Badge variant="outline">{application.membership_tier ?? 'Standard'}</Badge><span className="ml-2 text-xs">{application.category_name}</span></TableCell>
+                            <TableCell>{application.zone_name ?? '—'}</TableCell>
                             <TableCell><Badge variant="secondary">{application.status}</Badge></TableCell>
                             <TableCell>{format(new Date(application.created_at), 'dd MMM yyyy', { locale: es })}</TableCell>
                             <TableCell className="text-right"><Button size="sm" variant={active ? 'outline' : 'default'} disabled={active} onClick={() => void activateApplication(application.id)}>{active ? 'Activado' : 'Activar CRM'}</Button></TableCell>
