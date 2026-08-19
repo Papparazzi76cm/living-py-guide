@@ -36,7 +36,7 @@ export const DelegationFlagLogo = ({
   compact = false,
 }: DelegationFlagLogoProps) => (
   <div
-    className={`${compact ? 'h-32 w-32' : 'h-40 w-40 sm:h-44 sm:w-44'} shrink-0 overflow-hidden rounded-2xl bg-black shadow-sm ${className}`}
+    className={`${compact ? 'h-32 w-32' : 'h-40 w-40 sm:h-44 sm:w-44'} shrink-0 overflow-hidden rounded-2xl bg-muted shadow-sm ${className}`}
     role="img"
     aria-label={`Living ${countryName}`}
     style={{

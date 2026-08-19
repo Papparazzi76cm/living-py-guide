@@ -7,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.15"
   }
@@ -16,16 +18,12 @@ export type Database = {
         Row: {
           city: string | null
           consent_privacy: boolean
-          country_code: string
           created_at: string
           email: string
           id: string
           interests: string[]
-          market_name: string
-          market_slug: string
           name: string
           nationality: string | null
-          network_brand_slug: string
           notes: string | null
           source: string
           stage: string
@@ -36,16 +34,12 @@ export type Database = {
         Insert: {
           city?: string | null
           consent_privacy?: boolean
-          country_code?: string
           created_at?: string
           email: string
           id?: string
           interests?: string[]
-          market_name?: string
-          market_slug?: string
           name: string
           nationality?: string | null
-          network_brand_slug?: string
           notes?: string | null
           source?: string
           stage?: string
@@ -56,16 +50,12 @@ export type Database = {
         Update: {
           city?: string | null
           consent_privacy?: boolean
-          country_code?: string
           created_at?: string
           email?: string
           id?: string
           interests?: string[]
-          market_name?: string
-          market_slug?: string
           name?: string
           nationality?: string | null
-          network_brand_slug?: string
           notes?: string | null
           source?: string
           stage?: string
@@ -78,15 +68,11 @@ export type Database = {
       contact_inquiries: {
         Row: {
           consent_privacy: boolean
-          country_code: string
           created_at: string
           email: string
           id: string
-          market_name: string
-          market_slug: string
           message: string
           name: string
-          network_brand_slug: string
           source: string
           status: string
           subject: string
@@ -94,15 +80,11 @@ export type Database = {
         }
         Insert: {
           consent_privacy?: boolean
-          country_code?: string
           created_at?: string
           email: string
           id?: string
-          market_name?: string
-          market_slug?: string
           message: string
           name: string
-          network_brand_slug?: string
           source?: string
           status?: string
           subject: string
@@ -110,63 +92,14 @@ export type Database = {
         }
         Update: {
           consent_privacy?: boolean
-          country_code?: string
           created_at?: string
           email?: string
           id?: string
-          market_name?: string
-          market_slug?: string
           message?: string
           name?: string
-          network_brand_slug?: string
           source?: string
           status?: string
           subject?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      network_markets: {
-        Row: {
-          brand_name: string
-          country_code: string
-          country_name: string
-          created_at: string
-          currency_code: string
-          locale: string
-          network_brand_slug: string
-          operator_model: string
-          pricing_status: string
-          slug: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          brand_name: string
-          country_code: string
-          country_name: string
-          created_at?: string
-          currency_code: string
-          locale: string
-          network_brand_slug?: string
-          operator_model: string
-          pricing_status: string
-          slug: string
-          status: string
-          updated_at?: string
-        }
-        Update: {
-          brand_name?: string
-          country_code?: string
-          country_name?: string
-          created_at?: string
-          currency_code?: string
-          locale?: string
-          network_brand_slug?: string
-          operator_model?: string
-          pricing_status?: string
-          slug?: string
-          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -205,29 +138,19 @@ export type Database = {
           city: string
           company: string
           consent_privacy: boolean
-          country_code: string
           created_at: string
           description: string
           email: string
           exclusivity_interest: boolean
-          exclusivity_price_usd: number
           id: string
           languages: string
-          market_name: string
-          market_slug: string
-          membership_price_usd: number
-          membership_tier: string
           name: string
-          network_brand_slug: string
           source: string
           status: string
           updated_at: string
           website: string | null
           whatsapp: string
           years_experience: number
-          zone_max_seats: number
-          zone_name: string
-          zone_slug: string
         }
         Insert: {
           category_name: string
@@ -235,29 +158,19 @@ export type Database = {
           city: string
           company: string
           consent_privacy?: boolean
-          country_code?: string
           created_at?: string
           description: string
           email: string
           exclusivity_interest?: boolean
-          exclusivity_price_usd?: number
           id?: string
           languages: string
-          market_name?: string
-          market_slug?: string
-          membership_price_usd?: number
-          membership_tier?: string
           name: string
-          network_brand_slug?: string
           source?: string
           status?: string
           updated_at?: string
           website?: string | null
           whatsapp: string
           years_experience: number
-          zone_max_seats?: number
-          zone_name?: string
-          zone_slug?: string
         }
         Update: {
           category_name?: string
@@ -265,29 +178,19 @@ export type Database = {
           city?: string
           company?: string
           consent_privacy?: boolean
-          country_code?: string
           created_at?: string
           description?: string
           email?: string
           exclusivity_interest?: boolean
-          exclusivity_price_usd?: number
           id?: string
           languages?: string
-          market_name?: string
-          market_slug?: string
-          membership_price_usd?: number
-          membership_tier?: string
           name?: string
-          network_brand_slug?: string
           source?: string
           status?: string
           updated_at?: string
           website?: string | null
           whatsapp?: string
           years_experience?: number
-          zone_max_seats?: number
-          zone_name?: string
-          zone_slug?: string
         }
         Relationships: []
       }
@@ -324,10 +227,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      set_updated_at: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
@@ -353,16 +252,18 @@ export type Tables<
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
+  schema: keyof DatabaseWithoutInternals
+}
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -379,8 +280,8 @@ export type TablesInsert<
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
+  schema: keyof DatabaseWithoutInternals
+}
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
@@ -404,8 +305,8 @@ export type TablesUpdate<
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
+  schema: keyof DatabaseWithoutInternals
+}
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
@@ -429,8 +330,8 @@ export type Enums<
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
+  schema: keyof DatabaseWithoutInternals
+}
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
@@ -446,8 +347,8 @@ export type CompositeTypes<
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
+  schema: keyof DatabaseWithoutInternals
+}
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
