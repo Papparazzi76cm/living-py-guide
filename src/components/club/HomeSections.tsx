@@ -23,7 +23,6 @@ import {
   HOME_NEED_CARDS,
   CLUB_EVENTS,
   CLUB_RESOURCES,
-  MAX_SEATS_PER_CATEGORY,
 } from '@/data/clubData';
 import {
   ALL_PARTNER_CATEGORIES,
@@ -82,7 +81,7 @@ export const ClubHero = () => (
         <dl className="mt-12 grid max-w-xl grid-cols-2 gap-6 border-t border-white/15 pt-6 sm:grid-cols-3">
           {[
             { k: String(ALL_PARTNER_CATEGORIES.length), v: 'categorías profesionales' },
-            { k: '5', v: 'plazas máximas por rubro A-C' },
+            { k: '3', v: 'zonas profesionales activas' },
             { k: '100%', v: 'gratis para expatriados' },
           ].map((s) => (
             <div key={s.v}>
@@ -178,7 +177,7 @@ export const NeedsSection = () => (
 const HOW_STEPS = [
   { icon: MessageSquare, title: 'Contanos qué necesitás', text: 'Escribinos tu situación real: familia, empresa, plazos y presupuesto.' },
   { icon: Compass, title: 'Recibí orientación confiable', text: 'Te damos el marco: qué trámite corresponde, qué cuesta y en qué orden hacerlo.' },
-  { icon: Handshake, title: 'Conectá con profesionales verificados', text: 'Te derivamos a partners del Club revisados por categoría, no a listados abiertos.' },
+  { icon: Handshake, title: 'Conectá con profesionales verificados', text: 'Te derivamos a partners del Club revisados por categoría y zona, no a listados abiertos.' },
   { icon: LineChart, title: 'Resolvé y seguí tu avance', text: 'Acompañamos el caso hasta cerrarlo y registramos el resultado de cada derivación.' },
 ];
 
@@ -218,7 +217,7 @@ export const PartnerPitchSection = () => (
         </p>
         <ul className="mt-8 space-y-4">
           {[
-            { icon: Users, t: 'Modelo A–D', d: `A, B y C tienen hasta ${MAX_SEATS_PER_CATEGORY} miembros por rubro; D es abierta y gratuita.` },
+            { icon: Users, t: 'Tres zonas independientes', d: 'Gran Asunción: hasta 5 empresas por rubro. Itapúa (Encarnación) y Ciudad del Este: hasta 3.' },
             { icon: ShieldCheck, t: 'Red verificada', d: 'Admisión revisada: referencias, experiencia y capacidad de atención a extranjeros.' },
             { icon: LineChart, t: 'Seguimiento de derivaciones', d: 'Trazabilidad de cada lead derivado para medir retorno real (en desarrollo).' },
           ].map((b) => (
@@ -250,7 +249,7 @@ export const PartnerPitchSection = () => (
       </div>
 
       <div className="rounded-3xl border border-white/15 bg-white/5 p-6 backdrop-blur sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Membresía anual por nivel</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Gran Asunción · tarifa base</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           {(['A', 'B', 'C', 'D'] as const).map((tierKey) => {
             const tier = MEMBERSHIP_TIERS[tierKey];
@@ -268,11 +267,11 @@ export const PartnerPitchSection = () => (
         </div>
         <ul className="mt-6 space-y-3 text-sm text-white/75">
           {[
-            'Derivaciones cualificadas de la comunidad',
+            'Itapúa (Encarnación) y Ciudad del Este: membresías al 50%',
+            'En ambas zonas regionales el bloqueo cuesta 2× la membresía',
             'Perfil verificado en el directorio del Club',
-            'Participación en eventos y networking mensual',
-            'Visibilidad en contenidos y recursos',
-            'Exclusividad opcional en A-C si se cumplen los requisitos',
+            'Participación en eventos y networking',
+            'Categoría D abierta y gratuita en todas las zonas',
           ].map((x) => (
             <li key={x} className="flex gap-3">
               <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
@@ -281,7 +280,7 @@ export const PartnerPitchSection = () => (
           ))}
         </ul>
         <p className="mt-6 border-t border-white/15 pt-5 text-xs leading-relaxed text-white/50">
-          Bloqueo anual: A USD 7.500 · B USD 4.500 · C USD 1.500. Requiere atención en español, inglés, alemán y portugués. Categoría D: sin exclusividad.
+          Las reglas de idiomas para Categoría A y exclusividad se mantienen iguales en las tres zonas.
         </p>
       </div>
     </div>
@@ -296,9 +295,9 @@ export const ScarcitySection = () => {
     <section className="bg-sand py-16 sm:py-24">
       <div className="container mx-auto px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Plazas por categoría"
-          title="A, B y C limitadas. D siempre abierta."
-          description="Las categorías de pago admiten un máximo de cinco miembros activos por rubro. La categoría D no tiene límite de plazas ni posibilidad de exclusividad."
+          eyebrow="Plazas por categoría y zona"
+          title="5 en Gran Asunción. 3 en Encarnación y Ciudad del Este."
+          description="Las categorías A, B y C se limitan por territorio: cinco empresas por rubro en Gran Asunción y tres en las dos zonas regionales. La categoría D permanece abierta y sin exclusividad."
         />
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {sample.map((c) => (
@@ -310,7 +309,7 @@ export const ScarcitySection = () => {
             to="/profesionales"
             className="inline-flex items-center gap-2 rounded-xl border border-ink/20 bg-card px-6 py-3.5 font-semibold text-ink transition-colors hover:bg-muted"
           >
-            Ver las {ALL_PARTNER_CATEGORIES.length} categorías <ArrowRight className="h-5 w-5" />
+            Ver las {ALL_PARTNER_CATEGORIES.length} categorías por zona <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
       </div>
@@ -433,7 +432,7 @@ export const FinalCtaSection = () => (
           Quiero ser Partner
         </h3>
         <p className="mt-3 text-sm leading-relaxed text-white/70">
-          Membresías A–C según ticket medio y categoría D abierta sin cuota.
+          Elige Gran Asunción, Itapúa (Encarnación) o Ciudad del Este y consulta la tarifa específica de tu rubro.
         </p>
         <Link
           to="/ser-partner"
