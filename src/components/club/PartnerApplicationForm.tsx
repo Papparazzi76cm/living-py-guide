@@ -8,6 +8,7 @@ import {
   formatMembershipPrice,
   getMembershipTierConfig,
   getPartnerZoneConfig,
+  getRegionalCategoryStatus,
   getRegionalExclusivityPriceUsd,
   PARTNER_ZONE_ORDER,
   PARTNER_ZONES,
@@ -108,6 +109,9 @@ export const PartnerApplicationForm = ({
   const selectedCategory = ALL_PARTNER_CATEGORIES.find((item) => item.slug === form.category);
   const selectedTier = selectedCategory ? getMembershipTierConfig(selectedCategory) : null;
   const selectedZone = getPartnerZoneConfig(form.zone);
+  const selectedCategoryLocked = selectedCategory
+    ? getRegionalCategoryStatus(selectedCategory, form.zone) === 'exclusive'
+    : false;
   const exclusivityAllowed = selectedCategory ? canBlockExclusivity(selectedCategory) : true;
   const exclusivityPrice = selectedCategory
     ? getRegionalExclusivityPriceUsd(selectedCategory, form.zone)
@@ -117,6 +121,22 @@ export const PartnerApplicationForm = ({
     setForm((current) => ({ ...current, [key]: value }));
   };
 
+  const handleZoneChange = (zone: PartnerZoneSlug) => {
+    setForm((current) => {
+      const currentCategory = ALL_PARTNER_CATEGORIES.find((item) => item.slug === current.category);
+      const categoryLocked = currentCategory
+        ? getRegionalCategoryStatus(currentCategory, zone) === 'exclusive'
+        : false;
+      return {
+        ...current,
+        zone,
+        category: categoryLocked ? '' : current.category,
+        exclusivityInterest: categoryLocked ? 'no' : current.exclusivityInterest,
+      };
+    });
+    setFieldError('');
+  };
+
   const handleCategoryChange = (category: string) => {
     const next = ALL_PARTNER_CATEGORIES.find((item) => item.slug === category);
     setForm((current) => ({
@@ -124,6 +144,7 @@ export const PartnerApplicationForm = ({
       category,
       exclusivityInterest: next && !canBlockExclusivity(next) ? 'no' : current.exclusivityInterest,
     }));
+    setFieldError('');
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -148,6 +169,14 @@ export const PartnerApplicationForm = ({
       const message = 'La categoría seleccionada no es válida';
       setFieldError(message);
       toast({ title: 'Revisa la postulación', description: message, variant: 'destructive' });
+      return;
+    }
+
+    if (getRegionalCategoryStatus(category, parsed.data.zone) === 'exclusive') {
+      const zone = getPartnerZoneConfig(parsed.data.zone);
+      const message = `${category.name} está bloqueada en exclusividad en ${zone.shortName} y no admite nuevas postulaciones.`;
+      setFieldError(message);
+      toast({ title: 'Categoría bloqueada', description: message, variant: 'destructive' });
       return;
     }
 
@@ -204,11 +233,18 @@ export const PartnerApplicationForm = ({
 
     if (error) {
       const duplicate = error.code === '23505';
+      const exclusiveBlock = error.code === '23514';
       toast({
-        title: duplicate ? 'Ya tenemos una postulación en este rubro y zona' : 'No hemos podido guardar la postulación',
+        title: duplicate
+          ? 'Ya tenemos una postulación en este rubro y zona'
+          : exclusiveBlock
+            ? 'Categoría bloqueada en exclusividad'
+            : 'No hemos podido guardar la postulación',
         description: duplicate
           ? 'Ese email ya tiene una candidatura para esta categoría en la zona seleccionada. Si necesitas modificarla, contacta con Living Paraguay.'
-          : 'Inténtalo de nuevo en unos minutos.',
+          : exclusiveBlock
+            ? 'Este rubro no admite nuevas postulaciones en la zona seleccionada.'
+            : 'Inténtalo de nuevo en unos minutos.',
         variant: duplicate ? 'default' : 'destructive',
       });
       if (duplicate) setSubmitted(true);
@@ -242,7 +278,7 @@ export const PartnerApplicationForm = ({
 
         <div>
           <label className={labelClass} htmlFor="zone">Zona de actividad *</label>
-          <select id="zone" required className={inputClass} value={form.zone} onChange={(e) => set('zone', e.target.value as PartnerZoneSlug)}>
+          <select id="zone" required className={inputClass} value={form.zone} onChange={(e) => handleZoneChange(e.target.value as PartnerZoneSlug)}>
             {PARTNER_ZONE_ORDER.map((zoneSlug) => {
               const zone = PARTNER_ZONES[zoneSlug];
               return <option key={zone.slug} value={zone.slug}>{zone.name}</option>;
@@ -259,27 +295,30 @@ export const PartnerApplicationForm = ({
             <option value="">Selecciona una categoría</option>
             {ALL_PARTNER_CATEGORIES.map((category) => {
               const tier = getMembershipTierConfig(category);
+              const locked = getRegionalCategoryStatus(category, form.zone) === 'exclusive';
               return (
-                <option key={category.slug} value={category.slug}>
-                  {category.name} — Categoría {tier.tier} · {formatMembershipPrice(category, form.zone)}
+                <option key={category.slug} value={category.slug} disabled={locked}>
+                  {category.name} — Categoría {tier.tier} · {locked ? 'Bloqueada en exclusividad' : formatMembershipPrice(category, form.zone)}
                 </option>
               );
             })}
           </select>
-          <p className="mt-1.5 text-xs text-muted-foreground">La categoría A-D depende del ticket medio; el precio final depende también de la zona elegida.</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">La categoría A-D depende del ticket medio; el precio final y la disponibilidad dependen también de la zona elegida.</p>
         </div>
 
         {selectedCategory && selectedTier && (
-          <div className="sm:col-span-2 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
+          <div className={`sm:col-span-2 rounded-xl border p-4 text-sm ${selectedCategoryLocked ? 'border-ink/20 bg-ink/5' : 'border-primary/20 bg-primary/5'}`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <strong className="text-ink">Categoría {selectedTier.tier} · {formatMembershipPrice(selectedCategory, form.zone)}</strong>
+              <strong className="text-ink">Categoría {selectedTier.tier} · {selectedCategoryLocked ? 'Bloqueada en exclusividad' : formatMembershipPrice(selectedCategory, form.zone)}</strong>
               <span className="text-xs font-medium text-muted-foreground">{selectedZone.shortName}</span>
             </div>
             <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{selectedTier.description}</p>
-            {!selectedTier.open && (
+            {selectedCategoryLocked ? (
+              <p className="mt-2 text-xs font-semibold text-ink">No se admiten nuevas empresas en este rubro dentro de esta zona mientras el bloqueo esté vigente.</p>
+            ) : !selectedTier.open ? (
               <p className="mt-2 text-xs font-medium text-muted-foreground">Máximo {selectedZone.maxSeats} empresas por rubro en esta zona.</p>
-            )}
-            {selectedTier.tier === 'A' && (
+            ) : null}
+            {selectedTier.tier === 'A' && !selectedCategoryLocked && (
               <p className="mt-2 text-xs font-semibold text-primary">Requisito indispensable: atención al cliente en español e inglés.</p>
             )}
           </div>
@@ -296,7 +335,11 @@ export const PartnerApplicationForm = ({
         </div>
         <div className="sm:col-span-2"><label className={labelClass} htmlFor="description">Descripción breve de tu servicio *</label><textarea id="description" required rows={4} className={inputClass} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="Qué resuelves para un extranjero que llega a Paraguay y qué experiencia tienes en ese tipo de cliente." /></div>
 
-        {selectedCategory && !exclusivityAllowed ? (
+        {selectedCategoryLocked ? (
+          <div className="sm:col-span-2 rounded-xl border border-ink/20 bg-ink/5 p-4 text-sm text-muted-foreground">
+            <strong className="text-ink">Rubro ya bloqueado.</strong> Esta categoría no acepta nuevas postulaciones en {selectedZone.shortName}.
+          </div>
+        ) : selectedCategory && !exclusivityAllowed ? (
           <div className="sm:col-span-2 rounded-xl border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
             <strong className="text-ink">Categoría D abierta.</strong> No tiene cuota de membresía, no tiene límite de plazas y no admite bloqueo por exclusividad en ninguna zona.
           </div>
@@ -333,9 +376,9 @@ export const PartnerApplicationForm = ({
       </div>
 
       {fieldError && <p className="mt-4 text-sm text-destructive">{fieldError}</p>}
-      <button type="submit" disabled={submitting} className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60 sm:w-auto">
+      <button type="submit" disabled={submitting || selectedCategoryLocked} className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60 sm:w-auto">
         {submitting && <Loader2 className="h-5 w-5 animate-spin" />}
-        Enviar postulación
+        {selectedCategoryLocked ? 'Categoría no disponible' : 'Enviar postulación'}
       </button>
       <p className="mt-4 text-xs leading-relaxed text-muted-foreground">Sin pago en esta etapa. La membresía solo se formaliza después de la revisión y aceptación de la candidatura.</p>
     </form>
