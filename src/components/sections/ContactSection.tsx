@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ACTIVE_MARKET } from '@/config/network';
 import { z } from 'zod';
 
 const contactSchema = z.object({
@@ -76,6 +77,10 @@ export const ContactSection = () => {
       message: parsed.data.message,
       consent_privacy: true,
       source: 'contact_page',
+      market_slug: ACTIVE_MARKET.slug,
+      market_name: ACTIVE_MARKET.brandName,
+      country_code: ACTIVE_MARKET.countryCode,
+      network_brand_slug: 'lbc',
     }]);
     setIsSubmitting(false);
 
@@ -155,76 +160,31 @@ export const ContactSection = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <Input
-                      name="name"
-                      type="text"
-                      placeholder={t.contact.formName}
-                      value={formData.name}
-                      onChange={handleChange}
-                      className={errors.name ? 'border-destructive' : ''}
-                      required
-                    />
+                    <Input name="name" type="text" placeholder={t.contact.formName} value={formData.name} onChange={handleChange} className={errors.name ? 'border-destructive' : ''} required />
                     {errors.name && <p className="text-sm text-destructive mt-1">{errors.name}</p>}
                   </div>
                   <div>
-                    <Input
-                      name="email"
-                      type="email"
-                      placeholder={t.contact.formEmail}
-                      value={formData.email}
-                      onChange={handleChange}
-                      className={errors.email ? 'border-destructive' : ''}
-                      required
-                    />
+                    <Input name="email" type="email" placeholder={t.contact.formEmail} value={formData.email} onChange={handleChange} className={errors.email ? 'border-destructive' : ''} required />
                     {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
                   </div>
                 </div>
                 <div>
-                  <Input
-                    name="subject"
-                    type="text"
-                    placeholder={t.contact.formSubject}
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className={errors.subject ? 'border-destructive' : ''}
-                    required
-                  />
+                  <Input name="subject" type="text" placeholder={t.contact.formSubject} value={formData.subject} onChange={handleChange} className={errors.subject ? 'border-destructive' : ''} required />
                   {errors.subject && <p className="text-sm text-destructive mt-1">{errors.subject}</p>}
                 </div>
                 <div>
-                  <Textarea
-                    name="message"
-                    placeholder={t.contact.formMessage}
-                    rows={5}
-                    value={formData.message}
-                    onChange={handleChange}
-                    className={errors.message ? 'border-destructive' : ''}
-                    required
-                  />
+                  <Textarea name="message" placeholder={t.contact.formMessage} rows={5} value={formData.message} onChange={handleChange} className={errors.message ? 'border-destructive' : ''} required />
                   {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
                 </div>
 
                 <div className="hidden" aria-hidden="true">
                   <label htmlFor="contact-website">Website</label>
-                  <Input
-                    id="contact-website"
-                    name="website"
-                    tabIndex={-1}
-                    autoComplete="off"
-                    value={formData.website}
-                    onChange={handleChange}
-                  />
+                  <Input id="contact-website" name="website" tabIndex={-1} autoComplete="off" value={formData.website} onChange={handleChange} />
                 </div>
 
                 <label className="flex items-start gap-3 rounded-lg bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
-                  <input
-                    type="checkbox"
-                    required
-                    className="mt-0.5 h-4 w-4 accent-primary"
-                    checked={formData.consent}
-                    onChange={(e) => setFormData((current) => ({ ...current, consent: e.target.checked }))}
-                  />
-                  <span>Acepto que Living Paraguay trate estos datos para responder a mi consulta.</span>
+                  <input type="checkbox" required className="mt-0.5 h-4 w-4 accent-primary" checked={formData.consent} onChange={(e) => setFormData((current) => ({ ...current, consent: e.target.checked }))} />
+                  <span>Acepto que {ACTIVE_MARKET.brandName} trate estos datos para responder a mi consulta.</span>
                 </label>
                 {errors.consent && <p className="text-sm text-destructive">{errors.consent}</p>}
 
