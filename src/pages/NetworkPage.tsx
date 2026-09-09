@@ -50,7 +50,7 @@ const NetworkPage = () => (
           <p className="club-eyebrow justify-center text-primary">Delegación fundadora</p>
           <h2 className="mt-3 text-2xl font-bold text-ink sm:text-4xl">Living Paraguay valida el sistema antes de escalarlo.</h2>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
-            El CRM, la captación de partners, la atribución de negocio, los límites por rubro, la exclusividad y la experiencia de la comunidad se prueban primero en Paraguay. Cada nueva delegación heredará lo que funcione, no los errores del piloto.
+            El CRM, la captación de partners, la atribución de negocio, el alta gratuita, la contratación de servicios y la experiencia de la comunidad se prueban primero en Paraguay. Cada nueva delegación heredará lo que funcione, no los errores del piloto.
           </p>
         </div>
 

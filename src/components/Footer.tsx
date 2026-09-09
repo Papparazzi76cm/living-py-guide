@@ -15,6 +15,7 @@ export const Footer = () => {
     { path: '/comunidad', label: 'Comunidad' },
     { path: '/recursos', label: 'Recursos' },
     { path: '/ser-partner', label: 'Alta gratuita' },
+    { path: '/mi-cuenta', label: 'Mi cuenta' },
     { path: '/lbc', label: `Red ${LBC_NETWORK.initials}` },
   ];
 

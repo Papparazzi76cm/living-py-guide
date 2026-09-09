@@ -38,37 +38,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const [sessionReady, setSessionReady] = useState(false);
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          const adminStatus = await checkAdminRole(session.user.id);
-          setIsAdmin(adminStatus);
-        } else {
-          setIsAdmin(false);
-        }
-        
-        setIsLoading(false);
-      }
-    );
-
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        const adminStatus = await checkAdminRole(session.user.id);
-        setIsAdmin(adminStatus);
-      }
-      
-      setIsLoading(false);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      setIsAdmin(false);
+      setIsLoading(true);
+      setSessionReady(true);
     });
-
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!sessionReady) return;
+    let current = true;
+    const resolveRole = async () => {
+      const admin = session?.user ? await checkAdminRole(session.user.id) : false;
+      if (current) {
+        setIsAdmin(admin);
+        setIsLoading(false);
+      }
+    };
+    void resolveRole();
+    return () => { current = false; };
+  }, [session, sessionReady]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
