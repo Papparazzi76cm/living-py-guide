@@ -12,6 +12,7 @@ import { BrandThemeSync } from "./components/brand/BrandThemeSync";
 import { ACTIVE_MARKET } from "./config/network";
 import HomePage from "./pages/HomePage";
 
+const ServiceCategoryPage = lazy(() => import("./pages/ServiceCategoryPage"));
 const LivingParaguayPage = lazy(() => import("./pages/LivingParaguayPage"));
 const ProfessionalsPage = lazy(() => import("./pages/ProfessionalsPage"));
 const CommunityPage = lazy(() => import("./pages/CommunityPage"));
@@ -51,6 +52,8 @@ const ActiveMarketRoutes = () => (
   <Routes>
     <Route path="/" element={<HomePage />} />
     <Route path="/vivir-en-paraguay" element={<LivingParaguayPage />} />
+    <Route path="/servicios" element={<HomePage />} />
+    <Route path="/servicios/:slug" element={<ServiceCategoryPage />} />
     <Route path="/profesionales" element={<ProfessionalsPage />} />
     <Route path="/comunidad" element={<CommunityPage />} />
     <Route path="/recursos" element={<ResourcesPage />} />

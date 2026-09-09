@@ -12,10 +12,10 @@ export const Header = () => {
   const navLinks = [
     { path: '/', label: 'Inicio' },
     { path: '/vivir-en-paraguay', label: `Vivir en ${ACTIVE_MARKET.countryName}` },
-    { path: '/profesionales', label: 'Profesionales' },
+    { path: '/servicios', label: 'Servicios' },
     { path: '/comunidad', label: 'Comunidad' },
     { path: '/recursos', label: 'Recursos' },
-    { path: '/ser-partner', label: 'Ser Partner' },
+    { path: '/ser-partner', label: 'Alta gratuita' },
     { path: '/lbc', label: `Red ${LBC_NETWORK.initials}` },
   ];
 
@@ -51,10 +51,10 @@ export const Header = () => {
             <div className="hidden items-center gap-3 xl:flex">
               <LanguageSelector />
               <Link
-                to="/comunidad#unirme"
+                to="/servicios"
                 className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-hover"
               >
-                Entrar a la comunidad
+                Buscar servicios
               </Link>
             </div>
 
@@ -90,11 +90,11 @@ export const Header = () => {
                 </Link>
               ))}
               <Link
-                to="/comunidad#unirme"
+                to="/servicios"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="mt-4 rounded-xl bg-primary px-4 py-3 text-center font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
               >
-                Entrar a la comunidad
+                Buscar servicios
               </Link>
             </div>
           </nav>
