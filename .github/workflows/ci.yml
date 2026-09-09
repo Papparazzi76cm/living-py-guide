@@ -31,5 +31,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Marketplace permissions and workflow
+        run: npm run test:marketplace
+
       - name: Build
         run: npm run build

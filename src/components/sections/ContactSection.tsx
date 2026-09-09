@@ -1,3 +1,5 @@
+import { useSearchParams } from 'react-router-dom';
+import { SERVICE_CATEGORIES } from '@/data/marketplace';
 import { useState } from 'react';
 import { AnimatedDiv } from '../AnimatedDiv';
 import { Icon } from '../Icon';
@@ -39,7 +41,8 @@ const EMPTY_FORM: ContactFormData = {
 
 export const ContactSection = () => {
   const { t } = useLanguage();
-  const [formData, setFormData] = useState<ContactFormData>(EMPTY_FORM);
+  const [params] = useSearchParams();
+  const [formData, setFormData] = useState<ContactFormData>(() => ({ ...EMPTY_FORM, subject: params.get('profesional') === '1' ? 'Solicitud de alta gratuita como profesional' : (SERVICE_CATEGORIES.find(c => c.slug === params.get('servicio'))?.name ?? '') }));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();

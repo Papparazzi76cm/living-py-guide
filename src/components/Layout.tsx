@@ -62,7 +62,7 @@ export const Layout = ({ children, title, description, canonical, noHeaderPaddin
             },
             serviceType: [
               'Comunidad de expatriados',
-              'Directorio profesional verificado',
+              'Marketplace de servicios para expatriados',
               'Business Club',
               'Relocation y soft landing',
             ],

@@ -11,10 +11,11 @@ export const Footer = () => {
   const navLinks = [
     { path: '/', label: 'Inicio' },
     { path: '/vivir-en-paraguay', label: `Vivir en ${ACTIVE_MARKET.countryName}` },
-    { path: '/profesionales', label: 'Profesionales' },
+    { path: '/servicios', label: 'Servicios' },
     { path: '/comunidad', label: 'Comunidad' },
     { path: '/recursos', label: 'Recursos' },
-    { path: '/ser-partner', label: 'Ser Partner' },
+    { path: '/ser-partner', label: 'Alta gratuita' },
+    { path: '/mi-cuenta', label: 'Mi cuenta' },
     { path: '/lbc', label: `Red ${LBC_NETWORK.initials}` },
   ];
 
