@@ -13,6 +13,8 @@ export type RequestStatus =
   | 'disputed'
   | 'refunded';
 export type PaymentStatus = 'not_required' | 'unpaid' | 'processing' | 'paid' | 'refunded' | 'failed';
+export type PaymentProvider = 'unconfigured' | 'dlocal' | 'manual' | 'stripe';
+export type PayoutStatus = 'not_started' | 'pending' | 'ready' | 'restricted';
 export type Currency = 'USD' | 'PYG';
 export type DeliveryMode = 'online' | 'onsite' | 'hybrid';
 export type PriceType = 'fixed' | 'from' | 'quote';
@@ -28,9 +30,12 @@ export type Provider = {
   avatar_url: string | null;
   website: string | null;
   whatsapp: string | null;
-  stripe_account_id: string | null;
-  stripe_onboarding_status: 'not_started' | 'pending' | 'ready' | 'restricted';
+  payout_provider: PaymentProvider;
+  payout_account_reference: string | null;
+  payout_status: PayoutStatus;
   payouts_enabled: boolean;
+  stripe_account_id: string | null;
+  stripe_onboarding_status: PayoutStatus;
   verified_at: string | null;
   created_at: string;
 };
@@ -80,6 +85,8 @@ export type ServiceRequest = {
   quote_expires_at: string | null;
   accepted_at: string | null;
   payment_status: PaymentStatus;
+  payment_provider: PaymentProvider;
+  payment_reference: string | null;
   stripe_checkout_session_id: string | null;
   stripe_payment_intent_id: string | null;
   paid_at: string | null;
@@ -121,7 +128,7 @@ export type MarketplaceDatabase = {
       marketplace_providers: Table<
         Provider,
         Pick<Provider, 'user_id' | 'display_name' | 'city' | 'languages' | 'description'> &
-          Partial<Pick<Provider, 'status' | 'avatar_url' | 'website' | 'whatsapp' | 'stripe_account_id' | 'stripe_onboarding_status' | 'payouts_enabled' | 'verified_at'>>
+          Partial<Pick<Provider, 'status' | 'avatar_url' | 'website' | 'whatsapp' | 'verified_at'>>
       >;
       marketplace_services: Table<
         Service,
@@ -131,7 +138,7 @@ export type MarketplaceDatabase = {
       marketplace_requests: Table<
         ServiceRequest,
         Pick<ServiceRequest, 'service_id' | 'city' | 'language' | 'details'> &
-          Partial<Pick<ServiceRequest, 'preferred_date' | 'scheduled_at' | 'status' | 'fee' | 'taxes' | 'expenses' | 'quote_terms' | 'quote_expires_at' | 'payment_status' | 'stripe_checkout_session_id' | 'stripe_payment_intent_id' | 'paid_at' | 'completed_at' | 'cancelled_at'>>
+          Partial<Pick<ServiceRequest, 'preferred_date' | 'scheduled_at' | 'status' | 'fee' | 'taxes' | 'expenses' | 'quote_terms' | 'quote_expires_at' | 'completed_at' | 'cancelled_at'>>
       >;
       marketplace_messages: Table<MarketplaceMessage, Pick<MarketplaceMessage, 'request_id' | 'body'> & Partial<Pick<MarketplaceMessage, 'sender_id'>>>;
       marketplace_reviews: Table<MarketplaceReview, Pick<MarketplaceReview, 'request_id' | 'rating' | 'comment'> & Partial<Pick<MarketplaceReview, 'customer_id' | 'provider_id' | 'service_id'>>>;
