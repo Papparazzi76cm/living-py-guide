@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -13,12 +13,17 @@ import { ACTIVE_MARKET } from "./config/network";
 import HomePage from "./pages/HomePage";
 
 const LivingParaguayPage = lazy(() => import("./pages/LivingParaguayPage"));
-const ProfessionalsPage = lazy(() => import("./pages/ProfessionalsPage"));
+const MarketplacePage = lazy(() => import("./pages/MarketplacePage"));
+const ServiceCategoryPage = lazy(() => import("./pages/ServiceCategoryPage"));
+const ServiceOfferPage = lazy(() => import("./pages/ServiceOfferPage"));
+const MarketplaceOrderPage = lazy(() => import("./pages/MarketplaceOrderPage"));
+const MarketplaceLoginPage = lazy(() => import("./pages/MarketplaceLoginPage"));
+const MarketplaceAccountPage = lazy(() => import("./pages/MarketplaceAccountPage"));
+const ProviderApplyPage = lazy(() => import("./pages/ProviderApplyPage"));
 const CommunityPage = lazy(() => import("./pages/CommunityPage"));
 const ResourcesPage = lazy(() => import("./pages/ResourcesPage"));
 const PartnerPage = lazy(() => import("./pages/PartnerPage"));
 const PartnerTierPage = lazy(() => import("./pages/PartnerTierPage"));
-const NetworkPage = lazy(() => import("./pages/NetworkPage"));
 const MarketComingSoonPage = lazy(() => import("./pages/MarketComingSoonPage"));
 const PermitsPage = lazy(() => import("./pages/PermitsPage"));
 const SchoolsPage = lazy(() => import("./pages/SchoolsPage"));
@@ -60,13 +65,22 @@ const LinkOnlyPage = ({ children }: { children: ReactNode }) => (
 const ActiveMarketRoutes = () => (
   <Routes>
     <Route path="/" element={<HomePage />} />
+    <Route path="/servicios" element={<MarketplacePage />} />
+    <Route path="/servicios/:slug" element={<ServiceCategoryPage />} />
+    <Route path="/oferta/:id" element={<ServiceOfferPage />} />
+    <Route path="/pedido/:id" element={<MarketplaceOrderPage />} />
+    <Route path="/ofrecer-servicios" element={<ProviderApplyPage />} />
+    <Route path="/acceso" element={<MarketplaceLoginPage />} />
+    <Route path="/mi-cuenta" element={<MarketplaceAccountPage />} />
+
+    <Route path="/profesionales" element={<Navigate to="/servicios" replace />} />
+    <Route path="/lbc" element={<Navigate to="/servicios" replace />} />
     <Route path="/vivir-en-paraguay" element={<LivingParaguayPage />} />
-    <Route path="/profesionales" element={<ProfessionalsPage />} />
     <Route path="/comunidad" element={<CommunityPage />} />
     <Route path="/recursos" element={<ResourcesPage />} />
+
     <Route path="/ser-partner" element={<LinkOnlyPage><PartnerPage /></LinkOnlyPage>} />
     <Route path="/ser-partner/:tierSlug" element={<LinkOnlyPage><PartnerTierPage /></LinkOnlyPage>} />
-    <Route path="/lbc" element={<NetworkPage />} />
 
     <Route path="/permits" element={<PermitsPage />} />
     <Route path="/schools" element={<SchoolsPage />} />
