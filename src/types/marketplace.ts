@@ -29,13 +29,9 @@ export type Provider = {
   status: ProviderStatus;
   avatar_url: string | null;
   website: string | null;
-  whatsapp: string | null;
   payout_provider: PaymentProvider;
-  payout_account_reference: string | null;
   payout_status: PayoutStatus;
   payouts_enabled: boolean;
-  stripe_account_id: string | null;
-  stripe_onboarding_status: PayoutStatus;
   verified_at: string | null;
   created_at: string;
 };
@@ -128,7 +124,7 @@ export type MarketplaceDatabase = {
       marketplace_providers: Table<
         Provider,
         Pick<Provider, 'user_id' | 'display_name' | 'city' | 'languages' | 'description'> &
-          Partial<Pick<Provider, 'status' | 'avatar_url' | 'website' | 'whatsapp' | 'verified_at'>>
+          Partial<Pick<Provider, 'status' | 'avatar_url' | 'website' | 'verified_at'>>
       >;
       marketplace_services: Table<
         Service,
