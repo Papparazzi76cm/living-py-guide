@@ -121,9 +121,9 @@ const ProfessionalsPage = () => {
           )}
 
           <div className="mt-14 rounded-3xl border border-border bg-card p-7 text-center sm:p-10">
-            <h2 className="text-xl font-bold text-ink sm:text-2xl">¿No ves tu categoría?</h2>
-            <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">Abrimos nuevas categorías cuando detectamos demanda real en la comunidad. Cuéntanos qué haces y lo evaluamos para {zone.shortName}.</p>
-            <Link to={`/ser-partner?zona=${zoneSlug}`} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-ink px-6 py-3.5 font-semibold text-sand transition-colors hover:bg-ink-soft">Postular al Club <ArrowRight className="h-5 w-5" /></Link>
+            <h2 className="text-xl font-bold text-ink sm:text-2xl">¿No encuentras lo que necesitas?</h2>
+            <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">Cuéntanos qué servicio buscas y te orientaremos sobre las opciones disponibles en {zone.shortName}.</p>
+            <Link to="/contact" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-ink px-6 py-3.5 font-semibold text-sand transition-colors hover:bg-ink-soft">Contactar <ArrowRight className="h-5 w-5" /></Link>
           </div>
         </div>
       </section>

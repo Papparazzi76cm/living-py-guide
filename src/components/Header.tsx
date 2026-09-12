@@ -15,7 +15,6 @@ export const Header = () => {
     { path: '/profesionales', label: 'Profesionales' },
     { path: '/comunidad', label: 'Comunidad' },
     { path: '/recursos', label: 'Recursos' },
-    { path: '/ser-partner', label: 'Ser Partner' },
     { path: '/lbc', label: `Red ${LBC_NETWORK.initials}` },
   ];
 
