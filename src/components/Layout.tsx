@@ -5,7 +5,7 @@ import { Footer } from './Footer';
 import { Chatbot } from './Chatbot';
 import { Breadcrumbs } from './Breadcrumbs';
 import { PremiumMotion } from './PremiumMotion';
-import { ACTIVE_MARKET, LBC_NETWORK } from '@/config/network';
+import { ACTIVE_MARKET } from '@/config/network';
 
 interface LayoutProps {
   children: ReactNode;
@@ -37,35 +37,22 @@ export const Layout = ({ children, title, description, canonical, noHeaderPaddin
         <meta name="twitter:title" content={fullTitle} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={`${baseUrl}/og-image.jpg`} />
-
         <html lang={ACTIVE_MARKET.locale.split('-')[0]} />
 
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'ProfessionalService',
+            '@type': 'Organization',
             name: ACTIVE_MARKET.brandName,
             description,
             url: baseUrl,
             logo: `${baseUrl}/og-image.jpg`,
-            image: `${baseUrl}/og-image.jpg`,
-            parentOrganization: {
-              '@type': 'Organization',
-              name: LBC_NETWORK.name,
-            },
-            address: {
-              '@type': 'PostalAddress',
-              addressCountry: ACTIVE_MARKET.countryCode,
-            },
-            areaServed: {
-              '@type': 'Country',
-              name: ACTIVE_MARKET.countryName,
-            },
-            serviceType: [
-              'Comunidad de expatriados',
-              'Directorio profesional verificado',
-              'Business Club',
+            areaServed: { '@type': 'Country', name: ACTIVE_MARKET.countryName },
+            knowsAbout: [
+              'Marketplace de servicios para expatriados',
               'Relocation y soft landing',
+              'Residencia y migraciones',
+              'Vivienda y servicios profesionales',
             ],
           })}
         </script>
