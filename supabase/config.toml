@@ -3,6 +3,9 @@ project_id = "mhcyyjxiwpteonviujso"
 [functions.marketplace-checkout]
 verify_jwt = true
 
+[functions.marketplace-payout-activation]
+verify_jwt = true
+
 [functions.marketplace-payment-webhook]
 verify_jwt = false
 
