@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { marketplace, marketplaceError } from '@/integrations/supabase/marketplace';
 import { supabase } from '@/integrations/supabase/client';
 import { money, STATUS_LABELS } from '@/components/marketplace/format';
-import { Notice } from '@/components/marketplace/Fields';
+import { Field, Notice } from '@/components/marketplace/Fields';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -18,6 +18,8 @@ export default function MarketplaceOrderPage() {
   const [message, setMessage] = useState('');
   const [rating, setRating] = useState(5);
   const [review, setReview] = useState('');
+  const [payerName, setPayerName] = useState('');
+  const [payerDocument, setPayerDocument] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -77,20 +79,34 @@ export default function MarketplaceOrderPage() {
       const result = await marketplace.from('marketplace_requests').update({ status }).eq('id', order.data.id).select().single();
       if (result.error) throw result.error;
       await cache.invalidateQueries({ queryKey: ['marketplace'] });
-    } catch (error) { setNotice(marketplaceError(error)); } finally { setBusy(false); }
+    } catch (error) {
+      setNotice(marketplaceError(error));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function startPayment() {
     if (!order.data || busy) return;
+    if (payerName.trim().length < 3 || payerDocument.replace(/\D/g, '').length < 5) {
+      setNotice('Indica el nombre completo y el documento del pagador para abrir el checkout.');
+      return;
+    }
     setBusy(true); setNotice('');
     try {
-      const { data, error } = await supabase.functions.invoke('marketplace-checkout', { body: { requestId: order.data.id } });
+      const { data, error } = await supabase.functions.invoke('marketplace-checkout', {
+        body: { requestId: order.data.id, payerName: payerName.trim(), payerDocument: payerDocument.trim() },
+      });
       if (error) throw error;
-      if (!data?.url) throw new Error('Checkout URL missing');
+      if (!data?.url) throw new Error(data?.error ?? 'Checkout URL missing');
       window.location.assign(data.url);
     } catch {
-      setNotice('El pago online aún no está activado para esta operación. El expediente queda guardado y podrás pagarlo cuando la pasarela esté habilitada.');
-    } finally { setBusy(false); }
+      setNotice(order.data.currency === 'PYG'
+        ? 'El checkout está preparado para dLocal, pero aún necesita las credenciales de producción del PSP para procesar este pago.'
+        : 'El checkout local inicial procesa presupuestos en guaraníes. Pide al profesional que emita este presupuesto en PYG para pagarlo dentro de la plataforma.');
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function sendMessage() {
@@ -101,7 +117,11 @@ export default function MarketplaceOrderPage() {
       if (result.error) throw result.error;
       setMessage('');
       await messages.refetch();
-    } catch (error) { setNotice(marketplaceError(error)); } finally { setBusy(false); }
+    } catch (error) {
+      setNotice(marketplaceError(error));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function sendReview() {
@@ -112,7 +132,11 @@ export default function MarketplaceOrderPage() {
       if (result.error) throw result.error;
       await existingReview.refetch();
       setNotice('Gracias. Tu valoración ya forma parte del historial verificado del profesional.');
-    } catch (error) { setNotice(marketplaceError(error)); } finally { setBusy(false); }
+    } catch (error) {
+      setNotice(marketplaceError(error));
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -168,8 +192,15 @@ export default function MarketplaceOrderPage() {
                     <div className="mt-4 space-y-1 text-sm text-muted-foreground"><p>Honorarios: {money(order.data.fee, order.data.currency)}</p><p>Impuestos: {money(order.data.taxes, order.data.currency)}</p><p>Gastos: {money(order.data.expenses, order.data.currency)}</p></div>
                     <p className="mt-5 whitespace-pre-wrap border-t border-border pt-5 text-sm leading-6 text-muted-foreground">{order.data.quote_terms}</p>
                     {isCustomer && order.data.status === 'quoted' && <Button className="mt-5 w-full" onClick={() => transition('accepted')} disabled={busy}>Aceptar presupuesto</Button>}
-                    {isCustomer && order.data.status === 'accepted' && <Button className="mt-5 w-full" onClick={startPayment} disabled={busy}><CreditCard className="mr-2 h-4 w-4" /> Pagar de forma segura</Button>}
-                    {order.data.payment_status === 'paid' && <p className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800"><ShieldCheck className="h-4 w-4" /> Pago confirmado</p>}
+                    {isCustomer && ['accepted', 'payment_pending'].includes(order.data.status) && order.data.payment_status !== 'paid' && <div className="mt-5 space-y-4 border-t border-border pt-5">
+                      <p className="text-sm font-semibold text-ink">Datos del pagador</p>
+                      <Field label="Nombre completo" name="payer-name" value={payerName} onChange={setPayerName} required minLength={3} maxLength={120} />
+                      <Field label="CI / documento" name="payer-document" value={payerDocument} onChange={setPayerDocument} required minLength={5} maxLength={20} inputMode="numeric" />
+                      <p className="text-xs leading-5 text-muted-foreground">Estos datos se envían al procesador de pagos para cumplir los requisitos locales de Paraguay.</p>
+                      <Button className="w-full" onClick={startPayment} disabled={busy}><CreditCard className="mr-2 h-4 w-4" /> {order.data.payment_status === 'failed' ? 'Reintentar pago' : 'Pagar de forma segura'}</Button>
+                    </div>}
+                    {order.data.payment_status === 'processing' && <p className="mt-5 rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-800">Pago iniciado. Esperando confirmación del procesador.</p>}
+                    {order.data.payment_status === 'paid' && <p className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800"><ShieldCheck className="h-4 w-4" /> Pago confirmado dentro de Living Paraguay</p>}
                   </article>}
 
                   <article className="rounded-[1.7rem] border border-border bg-card p-6">
