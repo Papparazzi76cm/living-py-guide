@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import '@/premium-overrides.css';
 
 const REVEAL_SELECTOR = [
   'main section > .container',
@@ -7,6 +8,8 @@ const REVEAL_SELECTOR = [
   '.club-card',
   '[data-premium-reveal]',
 ].join(',');
+
+const CARD_SELECTOR = '.premium-card, .club-card';
 
 export const PremiumMotion = () => {
   useEffect(() => {
@@ -25,6 +28,8 @@ export const PremiumMotion = () => {
     };
 
     const revealNodes = Array.from(document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR));
+    const cards = Array.from(document.querySelectorAll<HTMLElement>(CARD_SELECTOR));
+    const cardCleanups: Array<() => void> = [];
 
     if (prefersReducedMotion) {
       revealNodes.forEach((node) => node.classList.add('premium-reveal', 'is-visible'));
@@ -48,12 +53,37 @@ export const PremiumMotion = () => {
 
       revealNodes.forEach((node) => observer.observe(node));
 
+      cards.forEach((card) => {
+        const handleCardPointer = (event: PointerEvent) => {
+          const rect = card.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width;
+          const y = (event.clientY - rect.top) / rect.height;
+          card.style.setProperty('--card-x', `${x * 100}%`);
+          card.style.setProperty('--card-y', `${y * 100}%`);
+          card.style.setProperty('--tilt-y', `${(x - 0.5) * 3.2}deg`);
+          card.style.setProperty('--tilt-x', `${(0.5 - y) * 3.2}deg`);
+        };
+
+        const resetCard = () => {
+          card.style.setProperty('--tilt-x', '0deg');
+          card.style.setProperty('--tilt-y', '0deg');
+        };
+
+        card.addEventListener('pointermove', handleCardPointer, { passive: true });
+        card.addEventListener('pointerleave', resetCard, { passive: true });
+        cardCleanups.push(() => {
+          card.removeEventListener('pointermove', handleCardPointer);
+          card.removeEventListener('pointerleave', resetCard);
+        });
+      });
+
       window.addEventListener('pointermove', updatePointer, { passive: true });
       updateScroll();
       window.addEventListener('scroll', updateScroll, { passive: true });
 
       return () => {
         observer.disconnect();
+        cardCleanups.forEach((cleanup) => cleanup());
         window.removeEventListener('pointermove', updatePointer);
         window.removeEventListener('scroll', updateScroll);
       };
