@@ -13,11 +13,11 @@ import {
 import { Layout } from '../components/Layout';
 import heroAsuncion from '@/assets/hero-asuncion.webp';
 import {
-  NeedsSection,
-  HowItWorksSection,
-  CommunitySection,
-  ResourcesSection,
-} from '../components/club/HomeSections';
+  PremiumNeedsSection,
+  PremiumHowItWorksSection,
+  PremiumCommunitySection,
+  PremiumResourcesSection,
+} from '../components/club/PremiumHomeSections';
 
 const roadmap = [
   ['01', 'Entender', 'Qué necesitas y en qué orden'],
@@ -200,11 +200,11 @@ const HomePage = () => (
     </Helmet>
     <PublicHero />
     <div id="empezar">
-      <NeedsSection />
+      <PremiumNeedsSection />
     </div>
-    <HowItWorksSection />
-    <CommunitySection />
-    <ResourcesSection />
+    <PremiumHowItWorksSection />
+    <PremiumCommunitySection />
+    <PremiumResourcesSection />
     <PublicFinalCtaSection />
   </Layout>
 );
