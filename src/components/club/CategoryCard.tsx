@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Lock, ArrowRight } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import {
   PartnerCategory,
   CATEGORY_STATUS_LABEL,
@@ -83,27 +83,16 @@ export const CategoryCard = ({ category, compact = false, zoneSlug = DEFAULT_PAR
           </>
         )}
 
-        {!compact && (
+        {!compact && showDemoPartners ? (
           <div className="flex flex-wrap gap-2 pt-1">
-            {showDemoPartners ? (
-              <Link
-                to={`/profesionales#${category.slug}`}
-                className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm font-medium text-ink transition-colors hover:bg-muted"
-              >
-                Ver profesionales
-              </Link>
-            ) : null}
-            {status !== 'exclusive' && (
-              <Link
-                to={`/ser-partner?categoria=${category.slug}&zona=${zoneSlug}`}
-                className="inline-flex items-center gap-1 rounded-lg bg-ink px-3 py-2 text-sm font-semibold text-sand transition-colors hover:bg-ink-soft"
-              >
-                Postular
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            )}
+            <Link
+              to={`/profesionales#${category.slug}`}
+              className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm font-medium text-ink transition-colors hover:bg-muted"
+            >
+              Ver profesionales
+            </Link>
           </div>
-        )}
+        ) : null}
       </div>
     </article>
   );
