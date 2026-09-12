@@ -4,6 +4,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { Chatbot } from './Chatbot';
 import { Breadcrumbs } from './Breadcrumbs';
+import { PremiumMotion } from './PremiumMotion';
 import { ACTIVE_MARKET, LBC_NETWORK } from '@/config/network';
 
 interface LayoutProps {
@@ -70,9 +71,10 @@ export const Layout = ({ children, title, description, canonical, noHeaderPaddin
         </script>
       </Helmet>
 
-      <div className="min-h-screen">
+      <div className="premium-site min-h-screen">
+        <PremiumMotion />
         <Header />
-        {!noHeaderPadding && <div className="pt-16 sm:pt-20"><Breadcrumbs /></div>}
+        {!noHeaderPadding && <div className="pt-20 sm:pt-24"><Breadcrumbs /></div>}
         <main>{children}</main>
         <Footer />
         <Chatbot />
