@@ -1,0 +1,30 @@
+name: Create marketplace operations migration
+
+on:
+  push:
+    branches: [marketplace-operational-v2]
+    paths:
+      - .github/workflows/create-marketplace-operations-migration.yml
+
+permissions:
+  contents: write
+
+jobs:
+  create-migration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: marketplace-operational-v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Create migration with Supabase CLI
+        run: npx -y supabase@latest migration new marketplace_operations
+      - name: Commit migration stub
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add supabase/migrations
+          git commit -m "Create marketplace operations migration" || exit 0
+          git push origin HEAD:marketplace-operational-v2
