@@ -49,9 +49,9 @@ const PublicHero = () => (
 
         <p className="premium-kicker text-primary">La comunidad para empezar bien</p>
         <h1 className="premium-display mt-5 max-w-4xl text-[clamp(3.1rem,7vw,7.1rem)] text-white">
-          Llegar a Paraguay cambia cuando ya tienes <span className="premium-serif text-white/92">una red.</span>
+          Llegar a Paraguay cambia cuando ya tienes <span className="premium-serif text-white/[0.92]">una red.</span>
         </h1>
-        <p className="mt-7 max-w-2xl text-base leading-8 text-white/66 sm:text-lg sm:leading-8">
+        <p className="mt-7 max-w-2xl text-base leading-8 text-white/[0.66] sm:text-lg sm:leading-8">
           Living Paraguay reúne orientación práctica, profesionales verificados y comunidad local para que residencia, vivienda, empresa, banca, colegios y vida diaria dejen de sentirse como piezas sueltas.
         </p>
 
@@ -77,7 +77,7 @@ const PublicHero = () => (
           ].map(([title, detail]) => (
             <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3.5 backdrop-blur-sm">
               <p className="text-sm font-bold text-white">{title}</p>
-              <p className="mt-1 text-[11px] leading-5 text-white/42">{detail}</p>
+              <p className="mt-1 text-[11px] leading-5 text-white/[0.42]">{detail}</p>
             </div>
           ))}
         </div>
@@ -87,7 +87,7 @@ const PublicHero = () => (
         <div className="premium-glass relative overflow-hidden rounded-[2.2rem] p-7 xl:p-8">
           <div className="mb-7 flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-white/38">Tu hoja de ruta</p>
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-white/[0.38]">Tu hoja de ruta</p>
               <p className="mt-2 text-xl font-bold text-white">De la duda a sentirte ubicado.</p>
             </div>
             <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.07] text-primary">
@@ -99,16 +99,16 @@ const PublicHero = () => (
             {roadmap.map(([number, title, detail], index) => (
               <div
                 key={number}
-                className="group flex items-center gap-4 rounded-2xl border border-white/8 bg-white/[0.04] p-4 transition-all duration-500 hover:translate-x-1 hover:border-white/16 hover:bg-white/[0.075]"
+                className="group flex items-center gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-4 transition-all duration-500 hover:translate-x-1 hover:border-white/[0.16] hover:bg-white/[0.075]"
               >
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold ${index === 0 ? 'bg-primary text-white shadow-[0_8px_24px_-10px_rgba(213,43,30,.9)]' : 'border border-white/10 bg-white/[0.05] text-white/45'}`}>
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold ${index === 0 ? 'bg-primary text-white shadow-[0_8px_24px_-10px_rgba(213,43,30,.9)]' : 'border border-white/10 bg-white/[0.05] text-white/[0.45]'}`}>
                   {number}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold text-white">{title}</p>
-                  <p className="mt-0.5 text-xs text-white/42">{detail}</p>
+                  <p className="mt-0.5 text-xs text-white/[0.42]">{detail}</p>
                 </div>
-                <Check className="h-4 w-4 text-white/18 transition-colors group-hover:text-primary" />
+                <Check className="h-4 w-4 text-white/[0.18] transition-colors group-hover:text-primary" />
               </div>
             ))}
           </div>
@@ -118,21 +118,21 @@ const PublicHero = () => (
               <Sparkles className="h-3.5 w-3.5 text-primary" />
               Información + personas + contexto
             </div>
-            <ArrowUpRight className="h-4 w-4 text-white/32" />
+            <ArrowUpRight className="h-4 w-4 text-white/[0.32]" />
           </div>
         </div>
 
-        <div className="absolute -left-10 top-16 rounded-2xl border border-white/14 bg-ink/72 px-4 py-3 shadow-2xl backdrop-blur-xl">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Contexto local</p>
+        <div className="premium-float absolute -left-10 top-16 rounded-2xl border border-white/[0.14] bg-ink/[0.72] px-4 py-3 shadow-2xl backdrop-blur-xl">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/[0.38]">Contexto local</p>
           <p className="mt-1 text-sm font-bold text-white">Antes de tomar decisiones</p>
         </div>
-        <div className="absolute -bottom-7 -right-6 rounded-2xl border border-white/14 bg-white/90 px-4 py-3 text-ink shadow-2xl backdrop-blur-xl">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-ink/35">Living Paraguay</p>
+        <div className="premium-float-delayed absolute -bottom-7 -right-6 rounded-2xl border border-white/[0.14] bg-white/90 px-4 py-3 text-ink shadow-2xl backdrop-blur-xl">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-ink/[0.35]">Living Paraguay</p>
           <p className="mt-1 flex items-center gap-2 text-sm font-extrabold"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Red en movimiento</p>
         </div>
       </div>
 
-      <a href="#empezar" className="absolute bottom-7 left-1/2 z-20 hidden -translate-x-1/2 items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.22em] text-white/32 transition-colors hover:text-white/70 lg:flex">
+      <a href="#empezar" className="absolute bottom-7 left-1/2 z-20 hidden -translate-x-1/2 items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.22em] text-white/[0.32] transition-colors hover:text-white/70 lg:flex">
         Descubrir <ArrowDown className="h-3.5 w-3.5 animate-bounce" />
       </a>
     </div>
@@ -148,9 +148,9 @@ const PublicFinalCtaSection = () => (
           <div>
             <p className="premium-kicker text-primary">Empieza por lo que necesitas hoy</p>
             <h2 className="premium-display mt-5 max-w-3xl text-4xl !text-white sm:text-5xl lg:text-6xl">
-              Menos pestañas abiertas. Más <span className="premium-serif text-white/88">claridad.</span>
+              Menos pestañas abiertas. Más <span className="premium-serif text-white/[0.88]">claridad.</span>
             </h2>
-            <p className="mt-6 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">
+            <p className="mt-6 max-w-2xl text-sm leading-7 text-white/[0.55] sm:text-base">
               Organiza tu llegada con una ruta práctica o entra directamente en la red de profesionales. Sin formularios interminables ni directorios impersonales.
             </p>
           </div>
@@ -159,13 +159,13 @@ const PublicFinalCtaSection = () => (
             <Link to="/vivir-en-paraguay" className="group rounded-3xl border border-white/10 bg-white/[0.055] p-5 transition-all duration-500 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.085]">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white"><Compass className="h-4 w-4" /></span>
               <p className="mt-5 font-bold text-white">Estoy llegando</p>
-              <p className="mt-2 text-xs leading-5 text-white/42">Guías y pasos para organizar tu instalación.</p>
+              <p className="mt-2 text-xs leading-5 text-white/[0.42]">Guías y pasos para organizar tu instalación.</p>
               <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-primary">Empezar <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></span>
             </Link>
             <Link to="/profesionales" className="group rounded-3xl border border-white/10 bg-white/[0.055] p-5 transition-all duration-500 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.085]">
               <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white"><ShieldCheck className="h-4 w-4" /></span>
               <p className="mt-5 font-bold text-white">Necesito un profesional</p>
-              <p className="mt-2 text-xs leading-5 text-white/42">Encuentra apoyo verificado por categoría y zona.</p>
+              <p className="mt-2 text-xs leading-5 text-white/[0.42]">Encuentra apoyo verificado por categoría y zona.</p>
               <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-primary">Explorar red <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></span>
             </Link>
           </div>
