@@ -78,21 +78,32 @@ export default function MarketplaceAccountPage() {
     } catch (error) { setNotice(marketplaceError(error)); } finally { setBusy(false); }
   }
 
-  async function connectStripe() {
+  async function requestPayoutActivation() {
     if (!profile.data || busy) return;
     setBusy(true); setNotice('');
     try {
-      const { data, error } = await supabase.functions.invoke('marketplace-connect-onboarding', { body: { providerId: profile.data.id } });
+      const { data, error } = await supabase.functions.invoke('marketplace-payout-activation', { body: { providerId: profile.data.id } });
       if (error) throw error;
-      if (!data?.url) throw new Error('Missing onboarding URL');
-      window.location.assign(data.url);
+      await profile.refetch();
+      if (data?.status === 'ready') {
+        setNotice('Tu configuración de liquidaciones ya está activa.');
+      } else {
+        setNotice('Solicitud registrada. Living Paraguay revisará la configuración/KYC necesaria para activar tus liquidaciones.');
+      }
     } catch {
-      setNotice('La conexión de cobros está preparada, pero todavía no está activada en este entorno. Tu perfil y tus servicios pueden seguir configurándose.');
+      setNotice('No se ha podido solicitar la activación de liquidaciones. Tu perfil y tus servicios siguen disponibles y puedes volver a intentarlo más tarde.');
     } finally { setBusy(false); }
   }
 
   const myRequests = requests.data?.filter((request) => request.customer_id === user.id) ?? [];
   const received = requests.data?.filter((request) => request.provider_id === profile.data?.id && request.customer_id !== user.id) ?? [];
+  const payoutLabel = profile.data?.payout_status === 'ready'
+    ? 'Liquidaciones activadas'
+    : profile.data?.payout_status === 'pending'
+      ? 'Activación/KYC en revisión'
+      : profile.data?.payout_status === 'restricted'
+        ? 'Requiere información adicional'
+        : 'Pendiente de activar';
 
   return (
     <Layout title="Mi cuenta" description="Gestiona contrataciones, servicios, presupuestos y cobros en Living Paraguay.">
@@ -122,7 +133,7 @@ export default function MarketplaceAccountPage() {
               ) : <>
                 <div className="grid gap-5 lg:grid-cols-[1fr_0.75fr]">
                   <div className="rounded-[1.7rem] border border-white bg-white/85 p-6 shadow-sm"><div className="flex items-center gap-2"><BadgeCheck className="h-5 w-5 text-primary" /><h2 className="text-xl font-bold text-ink">{profile.data.display_name}</h2></div><p className="mt-3 text-sm text-muted-foreground">Estado: <strong>{STATUS_LABELS[profile.data.status]}</strong></p><p className="mt-2 text-sm text-muted-foreground">{profile.data.city} · {profile.data.languages.join(', ')}</p><div className="mt-5"><ProviderForm key={profile.data.id} provider={profile.data} onSaved={refresh} /></div></div>
-                  <div className="rounded-[1.7rem] bg-ink p-6 text-white"><CreditCard className="h-6 w-6 text-primary" /><h2 className="mt-5 text-xl font-bold !text-white">Cobros y payouts</h2><p className="mt-3 text-sm leading-6 text-white/55">Los cobros se procesarán en la plataforma y tu parte se enviará a la cuenta conectada, descontando la comisión del marketplace.</p><p className="mt-5 text-sm font-semibold text-white">Estado: {profile.data.payouts_enabled ? 'Cobros activados' : profile.data.stripe_onboarding_status === 'pending' ? 'Verificación en curso' : 'Pendiente de conectar'}</p><Button className="mt-5 w-full" onClick={connectStripe} disabled={busy || profile.data.status !== 'approved'}>{profile.data.payouts_enabled ? 'Revisar cuenta de cobros' : 'Configurar cobros'}</Button>{profile.data.status !== 'approved' && <p className="mt-3 text-xs text-white/40">Podrás conectar cobros cuando el perfil esté aprobado.</p>}</div>
+                  <div className="rounded-[1.7rem] bg-ink p-6 text-white"><CreditCard className="h-6 w-6 text-primary" /><h2 className="mt-5 text-xl font-bold !text-white">Cobros y liquidaciones</h2><p className="mt-3 text-sm leading-6 text-white/55">El cliente paga dentro del expediente. Living Paraguay registra la comisión y liquida tu parte mediante el rail habilitado para Paraguay, sin cobrarte una cuota fija.</p><p className="mt-5 text-sm font-semibold text-white">Estado: {payoutLabel}</p><p className="mt-2 text-xs text-white/40">Proveedor previsto para Paraguay: dLocal / liquidación local. La activación puede requerir verificación KYC y datos bancarios fuera del perfil público.</p><Button className="mt-5 w-full" onClick={requestPayoutActivation} disabled={busy || profile.data.status !== 'approved' || profile.data.payout_status === 'pending'}>{profile.data.payout_status === 'ready' ? 'Revisar liquidaciones' : profile.data.payout_status === 'pending' ? 'Activación solicitada' : 'Solicitar activación'}</Button>{profile.data.status !== 'approved' && <p className="mt-3 text-xs text-white/40">Podrás solicitar la activación cuando el perfil esté aprobado.</p>}</div>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-4"><div><h2 className="text-2xl font-bold text-ink">Mis servicios</h2><p className="mt-1 text-sm text-muted-foreground">Cada servicio se revisa antes de aparecer en el marketplace.</p></div><Button onClick={() => setEditor('new')}><Plus className="mr-2 h-4 w-4" /> Añadir servicio</Button></div>
@@ -134,17 +145,18 @@ export default function MarketplaceAccountPage() {
             </TabsContent>
 
             {isAdmin && <TabsContent value="review" className="space-y-6 pt-6">
-              <div><h2 className="text-2xl font-bold text-ink">Cola de verificación</h2><p className="mt-2 text-sm text-muted-foreground">Verifica identidad comercial, alcance y condiciones antes de publicar.</p></div>
+              <div><h2 className="text-2xl font-bold text-ink">Cola de verificación</h2><p className="mt-2 text-sm text-muted-foreground">Verifica identidad comercial, alcance y condiciones antes de publicar. Las solicitudes de liquidación pendientes se revisan fuera del perfil público y se activan cuando el PSP/KYC esté completado.</p></div>
               {reviewQueue.error ? <Notice>{marketplaceError(reviewQueue.error)}</Notice> : reviewQueue.isPending ? <Notice>Cargando publicaciones…</Notice> : <>
-                {!reviewQueue.data?.providers.some((provider) => provider.status === 'pending') && !reviewQueue.data?.services.length && <Notice>No hay publicaciones pendientes.</Notice>}
+                {!reviewQueue.data?.providers.some((provider) => provider.status === 'pending' || provider.payout_status === 'pending') && !reviewQueue.data?.services.length && <Notice>No hay publicaciones ni liquidaciones pendientes.</Notice>}
                 {reviewQueue.data?.providers.filter((provider) => provider.status === 'pending').map((provider) => <article key={provider.id} className="rounded-[1.5rem] border border-border bg-card p-6"><h3 className="text-xl font-bold text-ink">{provider.display_name}</h3><p className="mt-2 text-sm text-muted-foreground">{provider.city} · {provider.languages.join(', ')}</p><p className="mt-4 whitespace-pre-wrap text-sm leading-6">{provider.description}</p><div className="mt-5 flex gap-3"><Button disabled={busy} onClick={() => moderate('provider', provider.id, true)}>Aprobar</Button><Button disabled={busy} variant="outline" onClick={() => moderate('provider', provider.id, false)}>Rechazar</Button></div></article>)}
+                {reviewQueue.data?.providers.filter((provider) => provider.status === 'approved' && provider.payout_status === 'pending').map((provider) => <article key={`payout-${provider.id}`} className="rounded-[1.5rem] border border-primary/20 bg-card p-6"><p className="text-xs font-bold uppercase tracking-[0.15em] text-primary">Liquidación pendiente</p><h3 className="mt-2 text-xl font-bold text-ink">{provider.display_name}</h3><p className="mt-3 text-sm text-muted-foreground">El profesional ha solicitado activar cobros/liquidaciones. Completa la verificación KYC y el alta en el proveedor de pagos antes de marcarlo como operativo.</p></article>)}
                 {reviewQueue.data?.services.map((service) => <article key={service.id} className="rounded-[1.5rem] border border-border bg-card p-6"><h3 className="text-xl font-bold text-ink">{service.title}</h3><p className="mt-2 text-sm text-muted-foreground">{reviewQueue.data?.providers.find((provider) => provider.id === service.provider_id)?.display_name ?? 'Perfil no encontrado'}</p><p className="mt-4 whitespace-pre-wrap text-sm leading-6">{service.description}</p><div className="mt-5 flex gap-3"><Button disabled={busy} onClick={() => moderate('service', service.id, true)}>Publicar</Button><Button disabled={busy} variant="outline" onClick={() => moderate('service', service.id, false)}>Ocultar</Button></div></article>)}
               </>}
             </TabsContent>}
           </Tabs>
 
           <Dialog open={editor !== null} onOpenChange={(open) => { if (!open) setEditor(null); }}>
-            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{editor === 'new' ? 'Añadir servicio' : 'Editar servicio'}</DialogTitle><DialogDescription>Describe un servicio comprensible y contratabile, no solo tu empresa.</DialogDescription></DialogHeader>{profile.data && editor && <ServiceEditor key={editor === 'new' ? 'new' : editor.id} providerId={profile.data.id} service={editor === 'new' ? undefined : editor} onSaved={() => { setEditor(null); refresh(); }} />}</DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{editor === 'new' ? 'Añadir servicio' : 'Editar servicio'}</DialogTitle><DialogDescription>Describe un servicio comprensible y contratable, no solo tu empresa.</DialogDescription></DialogHeader>{profile.data && editor && <ServiceEditor key={editor === 'new' ? 'new' : editor.id} providerId={profile.data.id} service={editor === 'new' ? undefined : editor} onSaved={() => { setEditor(null); refresh(); }} />}</DialogContent>
           </Dialog>
         </div>
       </section>
