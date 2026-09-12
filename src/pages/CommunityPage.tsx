@@ -1,4 +1,4 @@
-import { CalendarDays, Coffee, Users, Video } from 'lucide-react';
+import { CalendarDays, Coffee, Sparkles, Users, Video } from 'lucide-react';
 import { Layout } from '../components/Layout';
 import { CommunityJoinForm } from '../components/club/CommunityJoinForm';
 import { CLUB_EVENTS } from '../data/clubData';
@@ -11,47 +11,58 @@ const CommunityPage = () => (
     description="Eventos, bienvenida, networking y sesiones prácticas para expatriados y partners de Living Paraguay Business Club."
     noHeaderPadding
   >
-    <section className="bg-ink pb-16 pt-28 sm:pb-24 sm:pt-40">
-      <div className="container mx-auto px-4 sm:px-6">
-        <p className="club-eyebrow text-primary">Comunidad</p>
-        <h1 className="mt-4 max-w-4xl text-3xl font-bold leading-tight tracking-tight sm:text-5xl" style={{ color: 'hsl(var(--py-white))' }}>
-          Llegar con contactos cambia completamente la experiencia.
-        </h1>
-        <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/75 sm:text-base">
-          Living Paraguay combina información útil con encuentros presenciales y online para que expatriados y profesionales de confianza se conozcan antes de que aparezca una urgencia.
-        </p>
+    <section className="bg-ink pb-20 pt-36 sm:pb-28 sm:pt-44">
+      <div className="container mx-auto px-5 sm:px-6">
+        <div className="max-w-5xl">
+          <p className="premium-kicker text-primary">Comunidad</p>
+          <h1 className="premium-display mt-5 !text-white">
+            Llegar con contactos cambia por completo <span className="premium-serif text-white/[0.9]">la experiencia.</span>
+          </h1>
+          <p className="mt-7 max-w-2xl text-base leading-8 text-white/60">
+            Living Paraguay combina información útil con encuentros presenciales y online para que expatriados y profesionales de confianza se conozcan antes de que aparezca una urgencia.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-2">
+            <span className="premium-chip"><Users className="h-4 w-4 text-primary" /> Personas antes que directorios</span>
+            <span className="premium-chip"><Sparkles className="h-4 w-4 text-primary" /> Acceso gratuito para expatriados</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section className="bg-gradient-sand py-16 sm:py-24">
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="grid gap-5 sm:grid-cols-2">
+    <section className="premium-section bg-gradient-sand">
+      <div className="container mx-auto px-5 sm:px-6">
+        <div className="grid gap-4 sm:grid-cols-2">
           {CLUB_EVENTS.map((event, index) => {
             const Icon = eventIcons[index % eventIcons.length];
             return (
-              <article key={event.title} className="club-card rounded-3xl border border-border bg-card p-6 sm:p-8">
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <div className="mt-5 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <article key={event.title} className="premium-card rounded-[1.8rem] border border-white/80 bg-white/[0.8] p-6 backdrop-blur-sm sm:p-8">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="premium-icon-shell"><Icon className="h-5 w-5" /></span>
+                  <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-ink/[0.22]">0{index + 1}</span>
+                </div>
+                <div className="mt-7 flex flex-wrap items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink/40">
                   <span>{event.cadence}</span><span>·</span><span>{event.format}</span>
                 </div>
-                <h2 className="mt-3 text-xl font-bold text-ink sm:text-2xl">{event.title}</h2>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{event.description}</p>
+                <h2 className="premium-display mt-3 text-2xl text-ink sm:text-3xl">{event.title}</h2>
+                <p className="mt-4 text-sm leading-7 text-muted-foreground">{event.description}</p>
               </article>
             );
           })}
         </div>
 
-        <div id="unirme" className="mt-14 scroll-mt-28">
-          <div className="mb-8 max-w-2xl">
-            <p className="club-eyebrow text-primary">Acceso para expatriados</p>
-            <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">Entrar a la comunidad es gratis.</h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Cuéntanos en qué momento estás y qué necesitas. Guardaremos tu solicitud para poder invitarte a encuentros y conectarte con recursos relevantes para tu llegada o tu vida en Paraguay.
-            </p>
+        <div id="unirme" className="mt-16 scroll-mt-32">
+          <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
+            <div className="lg:sticky lg:top-32">
+              <p className="premium-kicker text-primary">Acceso para expatriados</p>
+              <h2 className="premium-display mt-4 text-4xl text-ink sm:text-5xl">Entrar a la comunidad es gratis.</h2>
+              <p className="mt-5 text-sm leading-7 text-muted-foreground sm:text-base">
+                Cuéntanos en qué momento estás y qué necesitas. Usaremos esa información para invitarte a encuentros y conectarte con recursos relevantes para tu llegada o tu vida en Paraguay.
+              </p>
+            </div>
+            <div className="premium-panel p-5 sm:p-7 lg:p-8">
+              <CommunityJoinForm />
+            </div>
           </div>
-          <CommunityJoinForm />
         </div>
       </div>
     </section>
