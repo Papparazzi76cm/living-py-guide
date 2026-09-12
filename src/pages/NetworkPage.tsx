@@ -151,10 +151,10 @@ const NetworkPage = () => (
           Living Paraguay construye el caso de éxito que dará a las próximas delegaciones un producto probado, procesos medibles y una propuesta de franquicia con credibilidad desde el primer día.
         </p>
         <Link
-          to="/ser-partner"
+          to="/contact"
           className="mt-7 inline-flex items-center gap-2 rounded-xl bg-ink px-6 py-3.5 font-semibold text-sand transition-colors hover:bg-ink-soft"
         >
-          Conocer el modelo de partners <ArrowRight className="h-5 w-5" />
+          Contactar con Living Paraguay <ArrowRight className="h-5 w-5" />
         </Link>
       </div>
     </section>
