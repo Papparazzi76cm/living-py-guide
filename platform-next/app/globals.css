@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 33% 98%;
+    --foreground: 216 38% 10%;
+    --py-red: 4 74% 48%;
+    --py-blue: 216 86% 37%;
+    --py-blue-dark: 217 55% 13%;
+    --py-white: 0 0% 100%;
+    --primary: 4 74% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 216 86% 37%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 38 24% 94%;
+    --muted-foreground: 215 13% 43%;
+    --border: 35 18% 87%;
+    --radius: 1rem;
+    --ink: 216 42% 9%;
+    --ink-soft: 216 24% 21%;
+    --sand: 40 33% 98%;
+    --sand-deep: 38 27% 92%;
+    --clay: 18 54% 53%;
+    --clay-soft: 22 57% 94%;
+    --champagne: 38 49% 76%;
+    --champagne-soft: 39 36% 91%;
+    --signal-blue: 216 96% 58%;
+    --gradient-hero: linear-gradient(135deg, hsl(var(--py-red)) 0%, hsl(var(--py-blue)) 100%);
+    --gradient-ink: radial-gradient(circle at 80% 0%, hsl(216 60% 22%) 0%, transparent 36%), linear-gradient(145deg, hsl(var(--ink)) 0%, hsl(218 46% 13%) 58%, hsl(218 55% 10%) 100%);
+    --gradient-sand: linear-gradient(180deg, hsl(40 33% 98%) 0%, hsl(36 27% 96%) 100%);
+    --shadow-card: 0 1px 1px rgb(7 16 29 / 0.04), 0 18px 45px -34px rgb(7 16 29 / 0.42);
+    --shadow-card-hover: 0 3px 8px rgb(7 16 29 / 0.06), 0 34px 70px -36px rgb(7 16 29 / 0.52);
+    --shadow-xl: 0 35px 80px -36px rgb(7 16 29 / 0.62);
+  }
+
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; background: hsl(var(--ink)); }
+  body {
+    @apply bg-background text-foreground antialiased overflow-x-hidden;
+    font-family: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    letter-spacing: -0.01em;
+  }
+  h1, h2, h3, h4, h5, h6 { color: hsl(var(--ink)); letter-spacing: -0.035em; }
+  ::selection { background: hsl(var(--primary) / 0.16); color: hsl(var(--ink)); }
+}
+
+@layer components {
+  .lp-shell {
+    @apply min-h-screen bg-background text-foreground;
+    background: radial-gradient(circle at 8% 0%, hsl(var(--champagne) / 0.17), transparent 28rem), hsl(var(--background));
+  }
+  .lp-container { @apply container mx-auto px-4 sm:px-6 lg:px-8; }
+  .lp-card {
+    @apply rounded-[1.35rem] border border-border bg-white p-6 shadow-card transition duration-300;
+  }
+  .lp-card:hover { @apply -translate-y-1 shadow-card-hover; }
+  .lp-pill { @apply inline-flex items-center rounded-full border border-border bg-white/80 px-3 py-1 text-xs font-bold text-ink-soft backdrop-blur; }
+  .lp-button {
+    @apply inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-6 py-3 font-bold text-white transition hover:-translate-y-0.5 hover:opacity-95;
+  }
+  .lp-dark-section { background: var(--gradient-ink); }
+}
