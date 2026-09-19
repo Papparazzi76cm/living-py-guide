@@ -1,0 +1,48 @@
+name: Export approved LivingParaguay assets
+
+on:
+  push:
+    paths:
+      - '.github/workflows/export-approved-assets.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  export-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+
+      - name: Upload approved visual assets
+        shell: bash
+        env:
+          INGEST_URL: https://tiyfqroxnoyewlslqwcj.supabase.co/functions/v1/ingest-approved-asset
+        run: |
+          set -euo pipefail
+
+          upload_file() {
+            local file="$1"
+            local source_path="$2"
+            local mime
+            mime="$(file --mime-type -b "$file")"
+            echo "Uploading ${source_path} (${mime})"
+            curl --fail-with-body --silent --show-error --retry 3 \
+              -X POST "$INGEST_URL" \
+              -H "x-asset-path: ${source_path}" \
+              -H "Content-Type: ${mime}" \
+              --data-binary "@${file}" >/dev/null
+          }
+
+          while IFS= read -r -d '' file; do
+            rel="${file#src/assets/}"
+            upload_file "$file" "assets/${rel}"
+          done < <(find src/assets -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.svg' \) -print0 | sort -z)
+
+          while IFS= read -r -d '' file; do
+            rel="${file#public/}"
+            upload_file "$file" "public/${rel}"
+          done < <(find public -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.svg' \) -print0 | sort -z)
+
+          echo "Approved visual asset export completed."
